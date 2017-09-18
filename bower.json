@@ -1,0 +1,17 @@
+{
+  "name": "worldtour",
+  "description": "",
+  "main": "",
+  "authors": [
+    "hungnguyen <hungbkdn1295@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
