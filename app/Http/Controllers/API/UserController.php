@@ -17,7 +17,7 @@ class UserController extends APIController
     public function __construct(User $user)
     {
         $this->user = $user;
-        $this->client = DB::table('oauth_clients')->where('id', 2)->first();
+        $this->client = DB::table('oauth_clients')->where('id', 2)->first();    
     }
 
     /**
