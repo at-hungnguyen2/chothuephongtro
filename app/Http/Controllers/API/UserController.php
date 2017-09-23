@@ -17,7 +17,7 @@ class UserController extends APIController
     public function __construct(User $user)
     {
         $this->user = $user;
-        $this->client = DB::table('oauth_clients')->where('id', 2)->first();    
+        $this->client = DB::table('oauth_clients')->where('id', 2)->first();
     }
 
     /**
@@ -46,7 +46,12 @@ class UserController extends APIController
      */
     public function store(Request $request)
     {
-        $user = $this->user->create($request->all());
+        $user = $this->user->create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'password' => bcrypt($request->password)
+        ]);
         return response()->json(['data' => $user, 'success' => true], Response::HTTP_OK);
     }
 

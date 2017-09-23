@@ -14,9 +14,14 @@ use Illuminate\Http\Request;
 */
 
 Route::middleware('auth:api')->group(function() {
-	Route::get('/user', 'API\UserController@show');
+	Route::get('/users', 'API\UserController@show');
+	Route::post('/posts', 'API\PostController@store');
 });
 
-Route::POST('/user/register', 'API\UserController@store');
+Route::POST('/users/register', 'API\UserController@store');
 
-Route::post('/user/login', 'API\UserController@login');
+Route::post('/users/login', 'API\UserController@login');
+
+Route::get('/posts/{id}', 'API\PostController@show');
+
+Route::get('/posts', 'API\PostController@index');

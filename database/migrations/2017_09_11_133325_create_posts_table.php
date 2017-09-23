@@ -21,11 +21,11 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('subject_id');
             $table->unsignedInteger('district_id');
             $table->string('title', 50);
-            $table->text('image');
+            $table->text('image')->nullable();
             $table->text('content');
             $table->text('address');
-            $table->tinyInteger('is_active');
-            $table->tinyInteger('status');
+            $table->tinyInteger('is_active')->default(0);
+            $table->tinyInteger('status')->default(1);
             $table->decimal('lat', 10, 7);
             $table->decimal('lng', 10, 7);
             $table->timestamps();
@@ -39,8 +39,6 @@ class CreatePostsTable extends Migration
      */
     public function down()
     {
-        Schema::table('posts', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('posts');
     }
 }

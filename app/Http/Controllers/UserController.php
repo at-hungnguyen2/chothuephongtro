@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Repositories\User\UserRepositoryInterface;
+use App\User;
 
 class UserController extends Controller
 {
@@ -13,7 +13,7 @@ class UserController extends Controller
      *
      * @param User $user dependence injection
      */
-    public function __construct(UserRepositoryInterface $user)
+    public function __construct(User $user)
     {
         $this->user = $user;
     }
@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = $this->user->getAllUserNotAdmin();
+        $users = $this->user->paginate(User::ITEMS_PER_PAGE);
         return view('user.index')->with('users', $users);
     }
 }

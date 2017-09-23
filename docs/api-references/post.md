@@ -18,10 +18,10 @@ Add new post from client.
 | title | String | required | Post title |
 | content | String | required | Content of post |
 | address | String | required | Address of room/house |
-| post_type | Integer | required | Id of type post |
-| cost | Integer | required | Id of cost |
-| subject | Integer | required | Id of subject |
-| district | Integer | required | Id of district |
+| post_type_id | Integer | required | Id of type post |
+| cost_id | Integer | required | Id of cost |
+| subject_id | Integer | required | Id of subject |
+| district_id | Integer | required | Id of district |
 #### Sample Request
 ```json
 {
@@ -29,10 +29,10 @@ Add new post from client.
 	"title": "Cho thue phong tro moi",
 	"content": "Phong tro rong rai thoang mat, 20m2",
 	"address": "137 K82 Nguyen Luong Bang",
-	"post_type": 2,
-	"cost": 3,
-	"subject": 1,
-	"district": 2
+	"post_type_id": 2,
+	"cost_id": 3,
+	"subject_id": 1,
+	"district_id": 2
 }
 ```
 #### Sample Response
@@ -68,35 +68,93 @@ Get all post
 #### Sample Response
 ```json
 {
-  	"total": 1,
-    "per_page": 10,
-    "current_page": 1,
-    "last_page": 1,
-    "next_page_url": null,
-    "path": "http://link-to-host.com/api/posts",
-    "prev_page_url": null,
-    "from": 1,
-    "to": 1,
-    "data": [
-	    {
-			"title": "Cho thue phong moi",
-			"user_id": 2,
-			"content": "abcxyz",
-			"address": "nguyen luong bang"
-	    },
-	    {
-	    	"title": "Cho thue phong moi",
-			"user_id": 3,
-			"content": "abcssssssxyz",
-			"address": "Ton Duc Thang"
-	    },
-	    {
-	    	"title": "Cho thue phong tro",
-			"user_id": 3,
-			"content": "abcxyzdsasdz",
-			"address": "Ngo Si Lien"
-	    }
-	],
-	"success": true
+  	"data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 1,
+                "user_id": 1,
+                "post_type_id": 1,
+                "cost_id": 1,
+                "subject_id": 1,
+                "district_id": 1,
+                "title": "Cho thue phong o bach khoa",
+                "image": null,
+                "content": "Phong dep thoang mat sach se",
+                "address": "K82 Nguyen Luong Bang",
+                "is_active": 0,
+                "status": 1,
+                "lat": "102.9232222",
+                "lng": "103.9999990",
+                "created_at": "2017-09-23 14:54:03",
+                "updated_at": "2017-09-23 14:54:03"
+            },
+            {
+                "id": 2,
+                "user_id": 1,
+                "post_type_id": 2,
+                "cost_id": 3,
+                "subject_id": 4,
+                "district_id": 1,
+                "title": "Cho thue phong o su pham",
+                "image": null,
+                "content": "Phong dep thoang mat sach se",
+                "address": "K82 ton duc thang",
+                "is_active": 0,
+                "status": 1,
+                "lat": "102.9232222",
+                "lng": "103.9999990",
+                "created_at": "2017-09-23 14:55:02",
+                "updated_at": "2017-09-23 14:55:02"
+            }
+        ],
+        "first_page_url": "http://link-to-host.com/api/posts?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "http://link-to-host.com/api/posts?page=1",
+        "next_page_url": null,
+        "path": "http://link-to-host.com/api/posts",
+        "per_page": 10,
+        "prev_page_url": null,
+        "to": 2,
+        "total": 2
+    },
+    "success": true
+}
+```
+
+### `GET` SPECIFIC POST
+```
+/api/posts/{post_id}
+```
+Get post by id
+
+#### Request header
+| Key | Value |
+|---|---|
+| Accept | application/json |
+
+#### Sample Response
+```json
+{
+  	"data": {
+        "id": 2,
+        "user_id": 1,
+        "post_type_id": 2,
+        "cost_id": 3,
+        "subject_id": 4,
+        "district_id": 1,
+        "title": "Cho thue phong o su pham",
+        "image": null,
+        "content": "Phong dep thoang mat sach se",
+        "address": "K82 ton duc thang",
+        "is_active": 0,
+        "status": 1,
+        "lat": "102.9232222",
+        "lng": "103.9999990",
+        "created_at": "2017-09-23 14:55:02",
+        "updated_at": "2017-09-23 14:55:02"
+    },
+    "success": true
 }
 ```

@@ -19,7 +19,15 @@ $factory->define(App\User::class, function (Faker $faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,
-        'password' => $password ?: $password = bcrypt('secret'),
-        'remember_token' => str_random(10),
+        'password' => $password ?: $password = bcrypt('123456')
     ];
 });
+
+$factory->define(App\Post::class, function (Faker $faker)) {
+	return [
+		'title' => $faker->catchPhrase,
+		'image' => $faker->imageUrl($width = 640, $height = 480),
+		'content' => $faker->text($maxNbChars = 200),
+		'address' => $faker->address
+	]
+}
