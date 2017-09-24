@@ -73,4 +73,27 @@ class PostController extends Controller
 
     	return redirect()->route('posts.index');
     }
+
+    /**
+     * Delete specific post
+     *
+     * @param Integer $id id of post
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        try {
+            $post = $this->post->findOrFail($id)->delete();
+            if ($post) {
+                flash(__('Delete post succeed'))->success()->important();
+            } else {
+                flash(__('Delete post failed'))->error()->important();
+            }
+        } catch (ModelNotFoundException $e) {
+            flash(__('Posst has been not found'))->error()->important();
+        }
+
+        return redirect()->back();
+    }
 }
