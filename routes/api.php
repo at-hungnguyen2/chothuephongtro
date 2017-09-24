@@ -16,6 +16,10 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->group(function() {
 	Route::get('/users', 'API\UserController@show');
 	Route::post('/posts', 'API\PostController@store');
+	Route::put('/posts/{id}', 'API\PostController@update');
+	Route::delete('/posts/{id}', 'API\PostController@destroy');
+	Route::post('/comments', 'API\CommentController@store');
+	Route::put('/comments/{id}', 'API\CommentController@update');
 });
 
 Route::POST('/users/register', 'API\UserController@store');

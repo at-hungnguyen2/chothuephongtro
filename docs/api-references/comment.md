@@ -22,7 +22,7 @@ Add new comment from client.
 {
 	"user_id": 1,
 	"post_id": 2,
-	"content": "Phong nay cho phep bao nhieu nguoi o vay?"
+	"comment": "Phong nay cho phep bao nhieu nguoi o vay?"
 }
 ```
 #### Sample Response
@@ -39,43 +39,27 @@ Add new comment from client.
 }
 ```
 
-### `GET` All Comment of a post
+### `PUT` Edit comment
 ```
-/api/comments/{post_id}
+/api/comments/{id}
 ```
-Get all comment
+Edit specific comment by id
 
 #### Request header
 | Key | Value |
 |---|---|
 | Accept | application/json |
+| Authorization | {token_type} {access_token} |
 
+#### Sample Request
+```json
+{
+	"comment": "Phong nay gia nhiu?"
+}
+```
 #### Sample Response
 ```json
 {
-  	"total": 1,
-    "per_page": 10,
-    "current_page": 1,
-    "last_page": 1,
-    "next_page_url": null,
-    "path": "http://link-to-host.com/api/comment/1",
-    "prev_page_url": null,
-    "from": 1,
-    "to": 1,
-    "data": [
-	    {
-			"user_id": 2,
-			"comment": "abcxyz",
-			"created_at": "2017-09-15 04:43:56",
-			"updated_at": "2017-09-15 04:43:56",
-	    },
-	    {
-			"user_id": 3,
-			"comment": "phong dep lam"
-			"created_at": "2017-09-15 04:43:56",
-			"updated_at": "2017-09-15 04:43:56",
-	    }
-	],
-	"success": true
+	"message": 'Update comment success'
 }
 ```
