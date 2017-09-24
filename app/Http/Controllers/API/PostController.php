@@ -75,18 +75,22 @@ class PostController extends APIController
 	 */
 	public function update($id, Request $request)
 	{
-		try {
-			$post = $this->post->findOrFail($id)->update($request->all());
-			if ($post) {
-				$message = __('Update this post success');
-				$response = Response::HTTP_OK;
-			} else {
-				$message = __('Has error during update this post');
-				$response = Response::HTTP_BAD_REQUEST;
+		if (!$request->has('status')) {
+			try {
+				$post = $this->post->findOrFail($id)->update($request->all());
+				if ($post) {
+					$message = __('Update this post success');
+					$response = Response::HTTP_OK;
+				} else {
+					$message = __('Has error during update this post');
+					$response = Response::HTTP_BAD_REQUEST;
+				}
+			} catch (ModelNotFoundException $e) {
+				$message = __('This post has been not found');
+				$response = Response::HTTP_NOT_FOUND;
 			}
-		} catch (ModelNotFoundException $e) {
-			$message = __('This post has been not found');
-			$response = Response::HTTP_NOT_FOUND;
+		} else {
+			return response()->json(['message' => __('Cannot update status')], Response::HTTP_BAD_REQUEST);
 		}
 
 		return response()->json(['message' => $message], $response);

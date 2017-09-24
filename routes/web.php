@@ -21,6 +21,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::middleware(['web', 'auth'])->group(function() {
 	Route::resource('users', 'UserController');
+	Route::resource('posts', 'PostController');
 });
 
 Route::get('/api-docs', function () {
