@@ -20,6 +20,7 @@ Route::middleware('auth:api')->group(function() {
 	Route::delete('/posts/{id}', 'API\PostController@destroy');
 	Route::post('/comments', 'API\CommentController@store');
 	Route::put('/comments/{id}', 'API\CommentController@update');
+	Route::post('/posts/{post_id}/rooms', 'API\RoomController@store');
 });
 
 Route::POST('/users/register', 'API\UserController@store');
@@ -29,3 +30,5 @@ Route::post('/users/login', 'API\UserController@login');
 Route::get('/posts/{id}', 'API\PostController@show');
 
 Route::get('/posts', 'API\PostController@index');
+
+Route::get('/rooms/{id}', 'API\RoomController@show');

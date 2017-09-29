@@ -6,17 +6,22 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Post;
 use App\Comment;
+use App\Room;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends APIController
 {
 	protected $post;
 	protected $comment;
+	protected $room;
 
-	public function __construct(Post $post, Comment $comment)
+	public function __construct(Post $post, Comment $comment, Room $room)
 	{
 		$this->post = $post;
 		$this->comment = $comment;
+		$this->room = $room;
 	}
 
 	/**
@@ -26,7 +31,23 @@ class PostController extends APIController
 	 */
 	public function index()
 	{
-		$posts = $this->post->paginate(POST::ITEMS_PER_PAGE);
+		$posts = $this->post->with(
+        		['user' => function($user) {
+        			$user->select('id', 'name');
+        		},
+        		'district' => function($district) {
+        			$district->select('id', 'district');
+        		},
+        		'cost' => function($cost) {
+        			$cost->select('id', 'cost');
+        		},
+        		'subject' => function($subject) {
+        			$subject->select('id', 'subject');
+        		},
+        		'postType' => function($postType) {
+        			$postType->select('id', 'type');
+        		}])
+				->paginate(POST::ITEMS_PER_PAGE);
 		return response()->json(['data' => $posts, 'success' => true], Response::HTTP_OK);
 	}
 
@@ -39,25 +60,36 @@ class PostController extends APIController
 	 */
 	public function store(Request $request)
 	{
-		if ($request->file('image')->isValid()) {
-			$destinationPath = public_path().'/uploads/posts';
-			$fileName = str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
-		} else {
-			$fileName = 'default_image.jgp';
-		}
-		
-		$arrPost = $request->all();
-		$arrPost['image'] = $fileName;
-		$arrPost['user_id'] = $request->user()->id;
-		$post = $this->post->create($arrPost);
-		if ($post) {
-			if ($request->hasFile('image')) {
-				$request->image->move($destinationPath, $fileName);
+		DB::beginTransaction();
+		try {
+			if ($request->file('image')->isValid()) {
+				$destinationPath = public_path().'/uploads/posts';
+				$fileName = str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+			} else {
+				$fileName = 'default_image.jgp';
 			}
-
-			return response()->json(['data' => $post, 'success' => true], Response::HTTP_OK);
+			
+			$arrPost = $request->all();
+			$arrPost['image'] = $fileName;
+			$arrPost['user_id'] = $request->user()->id;
+			$post = $this->post->create($arrPost);
+			foreach ($request->room as $room) {
+				$room['user_id'] = $request->user()->id;
+				$room['post_id'] = $post->id;
+				$roomItems = Room::create($room);
+			}
+			if ($post && $roomItems) {
+				if ($request->hasFile('image')) {
+					$request->image->move($destinationPath, $fileName);
+				}
+				DB::commit();
+				$rooms = Room::where('post_id', $post->id)->get();
+				return response()->json(['data' => $post, 'room' => $rooms, 'success' => true], Response::HTTP_OK);
+			}	
+		} catch (ClientException $e) {
+			DB::rollback();
+			return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
 		}
-		return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
 	}
 
 	/**
@@ -70,9 +102,30 @@ class PostController extends APIController
 	public function show($id)
 	{
 		try {
-			$post = $this->post->findOrFail($id);
+			$post = $this->post->with(
+        		['user' => function($user) {
+        			$user->select('id', 'name');
+        		},
+        		'district' => function($district) {
+        			$district->select('id', 'district');
+        		},
+        		'cost' => function($cost) {
+        			$cost->select('id', 'cost');
+        		},
+        		'subject' => function($subject) {
+        			$subject->select('id', 'subject');
+        		},
+        		'postType' => function($postType) {
+        			$postType->select('id', 'type');
+        		}])->findOrFail($id);
+			$rooms = $this->room->where('post_id', $id)->get();
 			$comments = $this->comment->getPostComments($id);
-			return response()->json(['data' => $post, 'comments' => $comments, 'success' => true], Response::HTTP_OK);
+			return response()->json([
+					'data' => $post,
+					'rooms' => $rooms,
+					'comments' => $comments,
+					'success' => true
+				], Response::HTTP_OK);
 		} catch(ModelNotFoundException $e) {
 			return response()->json(['message' => __('This post is not found')], Response::HTTP_NOT_FOUND);
 		}

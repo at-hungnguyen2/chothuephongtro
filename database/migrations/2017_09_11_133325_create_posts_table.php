@@ -20,6 +20,7 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('cost_id');
             $table->unsignedInteger('subject_id');
             $table->unsignedInteger('district_id');
+            $table->unsignedInteger('street_id');
             $table->string('title', 50);
             $table->text('image')->nullable();
             $table->text('content');

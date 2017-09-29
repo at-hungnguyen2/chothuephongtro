@@ -11,7 +11,7 @@ class Post extends Model
     CONST STATUS_NOTREADY = 0;
 	
     protected $fillable = [
-    	'user_id', 'post_type_id', 'cost_id', 'subject_id', 'district_id', 'title', 'image', 'content', 'address', 'lat', 'lng', 'status'
+    	'user_id', 'post_type_id', 'cost_id', 'subject_id', 'district_id', 'street_id', 'title', 'image', 'content', 'address', 'lat', 'lng', 'status'
     ];
 
     public function comments()

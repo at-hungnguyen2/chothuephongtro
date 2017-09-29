@@ -12,9 +12,11 @@ class PostTypeTableSeeder extends Seeder
     public function run()
     {
         DB::table('post_types')->insert([
-            ['type' => 0],
-            ['type' => 1],
-            ['type' => 2]
+            ['type' => 'Phòng Trọ, Nhà Trọ'],
+            ['type' => 'Nhà Nguyên Căn'],
+            ['type' => 'Cho Thue Căn Hộ'],
+            ['type' => 'Tìm Bạn Ở Ghép'],
+            ['type' => 'Cho Thuê Mặt Bằng']
         ]);
     }
 }

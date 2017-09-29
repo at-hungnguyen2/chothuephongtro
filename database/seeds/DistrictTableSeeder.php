@@ -12,9 +12,12 @@ class DistrictTableSeeder extends Seeder
     public function run()
     {
         DB::table('districts')->insert([
-            ['district' => 'Hoa Khanh'],
-            ['district' => 'Lien Chieu'],
-            ['district' => 'Cam Le']
+            ['district' => 'Cẩm Lệ'],
+            ['district' => 'Thanh Khê'],
+            ['district' => 'Sơn Trà'],
+            ['district' => 'Liên Chiểu'],
+            ['district' => 'Ngũ Hành Sơn'],
+            ['district' => 'Hải Châu']
         ]);
     }
 }
