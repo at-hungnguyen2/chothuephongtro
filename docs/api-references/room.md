@@ -84,3 +84,54 @@ Get room by id
     "success": true
 }
 ```
+### `PUT` Update room by id
+```
+api/rooms/{id}
+```
+Update room by id.
+#### Request Header
+| Key | Value |
+|---|---|
+| Accept | application/json |
+| Authorization | {token_type} {access_token} |
+#### Parameters
+| Key | Type | Required | Description |
+|---|---|---|---|
+| cost_id | Integer | required | Id of cost |
+| subject_id | Integer | required | Id of subject |
+| amount | Integer | not required | Amount of people |
+| image | File | not required | Image of room |
+
+#### Sample Request
+```json
+{
+	"cost_id": 1,
+	"subject_id": 2,
+	"amount": 2,
+	"image": file
+}
+```
+#### Sample Response
+```json
+{
+	"message": "Update this room success"
+}
+```
+
+### `DELETE` Delete room by id
+```
+api/rooms/{id}
+```
+Delete room by id.
+#### Request Header
+| Key | Value |
+|---|---|
+| Accept | application/json |
+| Authorization | {token_type} {access_token} |
+
+#### Sample Response
+```json
+{
+	"message": "Delete this room succeed"
+}
+```

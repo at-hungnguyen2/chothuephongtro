@@ -28,9 +28,9 @@ class CommentController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function store(Request $request)
+	public function store(Request $request, $postId)
 	{
-		$request->request->add(['user_id' => $request->user()->id]);
+		$request->request->add(['user_id' => $request->user()->id, 'post_id' => $postId]);
 		$comment = $this->comment->create($request->all());
 		if ($comment) {
 			return response()->json(['data' => $comment, 'success' => true], Response::HTTP_OK);
@@ -64,6 +64,32 @@ class CommentController extends APIController
 				$response = Response::HTTP_BAD_REQUEST;
 			}
 		} catch (ModelNotFountException $e) {
+			$message = __('This comment has been not found');
+			$response = Response::HTTP_NOT_FOUND;
+		}
+
+		return response()->json(['message' => $message], $response);
+	}
+
+	/**
+	 * Delete specific comment
+	 *
+	 * @param Integer $id id of comment
+	 *
+	 * @return Illuminate\Http\Response
+	 */
+	public function destroy($id)
+	{
+		try {
+			$comment = $this->comment->findOrFail($id)->delete();
+			if ($comment) {
+				$message = __('Delete this comment succeed');
+				$response = Response::HTTP_OK;
+			} else {
+				$message = __('Has error during delete this comment');
+				$response = Response::HTTP_BAD_REQUEST;
+			}
+		} catch (ModelNotFoundException $e) {
 			$message = __('This comment has been not found');
 			$response = Response::HTTP_NOT_FOUND;
 		}

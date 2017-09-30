@@ -2,7 +2,7 @@
 
 ### `POST` Create New Comment
 ```
-api/comments
+api/posts/{post_id}/comments
 ```
 Add new comment from client.
 #### Request Header
@@ -61,5 +61,22 @@ Edit specific comment by id
 ```json
 {
 	"message": 'Update comment success'
+}
+```
+### `DELETE` Delete comment by id
+```
+api/comments/{id}
+```
+Delete comment by id.
+#### Request Header
+| Key | Value |
+|---|---|
+| Accept | application/json |
+| Authorization | {token_type} {access_token} |
+
+#### Sample Response
+```json
+{
+	"message": "Delete this comment succeed"
 }
 ```

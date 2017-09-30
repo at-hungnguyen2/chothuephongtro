@@ -28,10 +28,12 @@ class RoomController extends APIController
 	 * @return Illuminate\Http\Response
 	 */
 	public function store(Request $request, $postId)
-	{
-		if ($request->file('image')->isValid()) {
-			$destinationPath = public_path().'/uploads/posts';
-			$fileName = str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+	{	
+		if ($request->file('image')) {
+			if ($request->file('image')->isValid()) {
+				$destinationPath = public_path().'/uploads/posts';
+				$fileName = str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+			}
 		} else {
 			$fileName = 'default_image.jgp';
 		}
@@ -73,5 +75,58 @@ class RoomController extends APIController
 		} catch(ModelNotFoundException $e) {
 			return response()->json(['message' => __('This post is not found')], Response::HTTP_NOT_FOUND);
 		}
+	}
+
+	/**
+	 * Update specific room from request
+	 *
+	 * @param Integer                 $id id of room
+	 * @param Illuminate\Http\Request $request request from client
+	 *
+	 * @return Illuminate\Http\Response
+	 */
+	public function update($id, Request $request)
+	{
+		try {
+			$room = $this->room->findOrFail($id)->update($request->all());
+			if ($room) {
+				$message = __('Update this room success');
+				$response = Response::HTTP_OK;
+			} else {
+				$message = __('Has error during update this room');
+				$response = Response::HTTP_BAD_REQUEST;
+			}
+		} catch (ModelNotFoundException $e) {
+			$message = __('This room has been not found');
+			$response = Response::HTTP_NOT_FOUND;
+		}
+
+		return response()->json(['message' => $message], $response);
+	}
+
+	/**
+	 * Delete specific room
+	 *
+	 * @param Integer $id id of room
+	 *
+	 * @return Illuminate\Http\Response
+	 */
+	public function destroy($id)
+	{
+		try {
+			$room = $this->room->findOrFail($id)->delete();
+			if ($room) {
+				$message = __('Delete this room succeed');
+				$response = Response::HTTP_OK;
+			} else {
+				$message = __('Has error during delete this room');
+				$response = Response::HTTP_BAD_REQUEST;
+			}
+		} catch (ModelNotFoundException $e) {
+			$message = __('This room has been not found');
+			$response = Response::HTTP_NOT_FOUND;
+		}
+
+		return response()->json(['message' => $message], $response);
 	}
 }

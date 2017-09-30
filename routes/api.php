@@ -14,13 +14,14 @@ use Illuminate\Http\Request;
 */
 
 Route::middleware('auth:api')->group(function() {
+	Route::prefix('posts')->group(function() {
+		Route::post('/{post_id}/comments', 'API\CommentController@store');
+		Route::post('/{post_id}/rooms', 'API\RoomController@store');
+	});
 	Route::get('/users', 'API\UserController@show');
-	Route::post('/posts', 'API\PostController@store');
-	Route::put('/posts/{id}', 'API\PostController@update');
-	Route::delete('/posts/{id}', 'API\PostController@destroy');
-	Route::post('/comments', 'API\CommentController@store');
-	Route::put('/comments/{id}', 'API\CommentController@update');
-	Route::post('/posts/{post_id}/rooms', 'API\RoomController@store');
+	Route::resource('comments', 'API\CommentController', ['only' => ['update', 'destroy']]);
+	Route::resource('rooms', 'API\RoomController', ['only' => ['update', 'destroy']]);
+	Route::resource('posts', 'API\PostController', ['only' => ['store', 'update', 'destroy']]);
 });
 
 Route::POST('/users/register', 'API\UserController@store');
