@@ -60,29 +60,28 @@ class PostController extends APIController
 	 */
 	public function store(Request $request)
 	{
-
-			if ($request->hasFile('image')) {
-				if ($request->file('image')->isValid()) {
-					$destinationPath = public_path().'/uploads/posts';
-					$fileName = str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
-				}
-			} else {
-				$fileName = 'default_image.jgp';
+		if ($request->hasFile('image')) {
+			if ($request->file('image')->isValid()) {
+				$destinationPath = public_path().env('POST_PATH');
+				$fileName = env('POST_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
 			}
-			
-			$arrPost = $request->all();
-			$arrPost['image'] = $fileName;
-			$arrPost['user_id'] = $request->user()->id;
-			$post = $this->post->create($arrPost);
-
-			if ($post) {
-				if ($request->hasFile('image')) {
-					$request->image->move($destinationPath, $fileName);
-				}
-				return response()->json(['data' => $post, 'success' => true], Response::HTTP_OK);
-			}	
+		} else {
+			$fileName = 'default_image.jpg';
+		}
 		
-			return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
+		$arrPost = $request->all();
+		$arrPost['image'] = $fileName;
+		$arrPost['user_id'] = $request->user()->id;
+		$post = $this->post->create($arrPost);
+
+		if ($post) {
+			if ($request->hasFile('image')) {
+				$request->image->move($destinationPath, $fileName);
+			}
+			return response()->json(['data' => $post, 'success' => true], Response::HTTP_OK);
+		}	
+	
+		return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
 	}
 
 	/**

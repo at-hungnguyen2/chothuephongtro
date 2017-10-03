@@ -31,11 +31,11 @@ class RoomController extends APIController
 	{	
 		if ($request->file('image')) {
 			if ($request->file('image')->isValid()) {
-				$destinationPath = public_path().'/uploads/posts';
-				$fileName = str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+				$destinationPath = public_path().env("ROOM_PATH");
+				$fileName = env('POST_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
 			}
 		} else {
-			$fileName = 'default_image.jgp';
+			$fileName = 'default_image.jpg';
 		}
 		$request->request->add(['post_id' => $postId]);
 		$roomData = $request->all();
