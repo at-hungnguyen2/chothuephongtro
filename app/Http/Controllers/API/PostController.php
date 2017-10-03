@@ -7,6 +7,10 @@ use Illuminate\Http\Response;
 use App\Post;
 use App\Comment;
 use App\Room;
+use App\District;
+use App\Cost;
+use App\PostType;
+use App\Subject;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +54,28 @@ class PostController extends APIController
 				->paginate(POST::ITEMS_PER_PAGE);
 		return response()->json(['data' => $posts, 'success' => true], Response::HTTP_OK);
 	}
+
+	/**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create(Request $request)
+    {
+        $districts = District::select('id', 'district')->get();
+        $subjects = Subject::select('id', 'subject')->get();
+        $costs = Cost::select('id', 'cost')->get();
+        $postTypes = PostType::select('id', 'type')->get();
+        if ($districts && $subjects && $costs && $postTypes) {
+        	return response()->json([
+        		'districts' => $districts,
+        		'subjects' => $subjects,
+        		'costs' => $costs,
+        		'postTypes' => $postTypes,
+        		'success => true'], Response::HTTP_OK);
+        }
+        return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
+    }
 
 	/**
 	 * Create new post from request

@@ -29,7 +29,8 @@ class UserController extends APIController
      */
     public function show(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user()->with('posts')->get();
+        dd($user);
         if (!$user) {
             return response()->json(['success' => false, 'message' => __('Error during get current user')], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

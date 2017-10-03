@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use App\Post;
 use App\Comment;
 use App\Room;
+use App\Subject;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,21 @@ class RoomController extends APIController
 	}
 
 	/**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create(Request $request)
+    {
+        $posts = Post::where('user_id', $request->user()->id)->get();
+        $subjects = Subject::get();
+        if ($posts && $subjects) {
+        	return response()->json(['posts' => $posts, 'subjects' => $subjects, 'success => true'], Response::HTTP_OK);	
+        }
+        return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
+    }
+
+	/**
 	 * Get specific post by id
 	 *
 	 * @param Integer $id id of post
@@ -62,9 +78,6 @@ class RoomController extends APIController
 	{
 		try {
 			$room = $this->room->with([
-        		'cost' => function($cost) {
-        			$cost->select('id', 'cost');
-        		},
         		'subject' => function($subject) {
         			$subject->select('id', 'subject');
         		},

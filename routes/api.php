@@ -20,8 +20,8 @@ Route::middleware('auth:api')->group(function() {
 	});
 	Route::get('/users', 'API\UserController@show');
 	Route::resource('comments', 'API\CommentController', ['only' => ['update', 'destroy']]);
-	Route::resource('rooms', 'API\RoomController', ['only' => ['update', 'destroy']]);
-	Route::resource('posts', 'API\PostController', ['only' => ['store', 'update', 'destroy']]);
+	Route::resource('rooms', 'API\RoomController', ['only' => ['create', 'update', 'destroy']]);
+	Route::resource('posts', 'API\PostController', ['only' => ['create', 'store', 'update', 'destroy']]);
 });
 
 Route::POST('/users/register', 'API\UserController@store');
