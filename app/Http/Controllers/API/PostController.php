@@ -60,11 +60,12 @@ class PostController extends APIController
 	 */
 	public function store(Request $request)
 	{
-		DB::beginTransaction();
-		try {
-			if ($request->file('image')->isValid()) {
-				$destinationPath = public_path().'/uploads/posts';
-				$fileName = str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+
+			if ($request->hasFile('image')) {
+				if ($request->file('image')->isValid()) {
+					$destinationPath = public_path().'/uploads/posts';
+					$fileName = str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+				}
 			} else {
 				$fileName = 'default_image.jgp';
 			}
@@ -73,23 +74,15 @@ class PostController extends APIController
 			$arrPost['image'] = $fileName;
 			$arrPost['user_id'] = $request->user()->id;
 			$post = $this->post->create($arrPost);
-			foreach ($request->room as $room) {
-				$room['user_id'] = $request->user()->id;
-				$room['post_id'] = $post->id;
-				$roomItems = Room::create($room);
-			}
-			if ($post && $roomItems) {
+
+			if ($post) {
 				if ($request->hasFile('image')) {
 					$request->image->move($destinationPath, $fileName);
 				}
-				DB::commit();
-				$rooms = Room::where('post_id', $post->id)->get();
-				return response()->json(['data' => $post, 'room' => $rooms, 'success' => true], Response::HTTP_OK);
+				return response()->json(['data' => $post, 'success' => true], Response::HTTP_OK);
 			}	
-		} catch (ClientException $e) {
-			DB::rollback();
+		
 			return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
-		}
 	}
 
 	/**
@@ -104,7 +97,7 @@ class PostController extends APIController
 		try {
 			$post = $this->post->with(
         		['user' => function($user) {
-        			$user->select('id', 'name');
+        			$user->select('id', 'name', 'email', 'phone_number');
         		},
         		'district' => function($district) {
         			$district->select('id', 'district');
