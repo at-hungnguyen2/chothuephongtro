@@ -91,6 +91,32 @@ class RoomController extends APIController
 	}
 
 	/**
+	 * Show to edit specific post
+	 *
+	 * @param Integer $id id of post
+	 *
+	 * @return Illuminate\Http\Response
+	 */
+	public function edit($id, Request $request)
+	{
+		try {
+			$room = $this->room->with([
+        		'subject' => function($subject) {
+        			$subject->select('id', 'subject');
+        		},
+        		'post' => function($post) {
+        			$post->select('id', 'title');
+        		}])->findOrFail($id);
+			$posts = Post::select('id', 'title')->where('id', $request->user()->id)->get();
+			$subjects = Subject::select('id', 'subject')->get();
+			return response()->json(['oldRoom' => $room, 'posts' => $posts, 'subjects' => $subjects, 'success' => true], Response::HTTP_OK);
+		} catch (ModelNotFoundException $e) {
+			$message = __('This room has been not found');
+			$response = Response::HTTP_NOT_FOUND;
+		}
+	}
+
+	/**
 	 * Update specific room from request
 	 *
 	 * @param Integer                 $id id of room

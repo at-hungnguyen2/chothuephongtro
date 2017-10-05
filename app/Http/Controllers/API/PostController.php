@@ -150,6 +150,51 @@ class PostController extends APIController
 	}
 
 	/**
+	 * Show to edit specific post
+	 *
+	 * @param Integer $id id of post
+	 *
+	 * @return Illuminate\Http\Response
+	 */
+	public function edit($id)
+	{
+		try {
+			$postOld = $this->post->with(
+        		['user' => function($user) {
+        			$user->select('id', 'name', 'email', 'phone_number');
+        		},
+        		'district' => function($district) {
+        			$district->select('id', 'district');
+        		},
+        		'cost' => function($cost) {
+        			$cost->select('id', 'cost');
+        		},
+        		'subject' => function($subject) {
+        			$subject->select('id', 'subject');
+        		},
+        		'postType' => function($postType) {
+        			$postType->select('id', 'type');
+        		}])->findOrFail($id);
+			$rooms = $this->room->where('post_id', $id)->get();
+			$districts = District::select('id', 'district')->get();
+			$costs = Cost::select('id', 'cost')->get();
+			$subjects = Subject::select('id', 'subject')->get();
+			$postTypes = PostType::select('id', 'type')->get();
+			return response()->json([
+					'oldData' => $postOld,
+					'rooms' => $rooms,
+					'districts' => $districts,
+					'costs' => $costs,
+					'subjects' => $subjects,
+					'postTypes' => $postTypes,
+					'success' => true
+				], Response::HTTP_OK);
+		} catch(ModelNotFoundException $e) {
+			return response()->json(['message' => __('This post is not found')], Response::HTTP_NOT_FOUND);
+		}
+	}
+
+	/**
 	 * Update specific post from request
 	 *
 	 * @param Integer                 $id id of post
