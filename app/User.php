@@ -5,11 +5,13 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Traits\BeforeUpdate;
 
 class User extends Authenticatable
 {
     use HasApiTokens;
     use Notifiable;
+    use BeforeUpdate;
 
     const ITEMS_PER_PAGE = 10;
 

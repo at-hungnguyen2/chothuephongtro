@@ -14,9 +14,12 @@ use App\Subject;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
+use App\Traits\Permission;
 
 class PostController extends APIController
 {
+	use Permission;
+
 	protected $post;
 	protected $comment;
 	protected $room;
@@ -51,6 +54,7 @@ class PostController extends APIController
         		'postType' => function($postType) {
         			$postType->select('id', 'type');
         		}])
+				->where('is_active', Post::ACTIVE)->where('status', Post::STATUS_READY)
 				->paginate(POST::ITEMS_PER_PAGE);
 		return response()->json(['data' => $posts, 'success' => true], Response::HTTP_OK);
 	}
@@ -156,7 +160,7 @@ class PostController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function edit($id)
+	public function edit(Request $request, $id)
 	{
 		try {
 			$postOld = $this->post->with(
@@ -175,6 +179,9 @@ class PostController extends APIController
         		'postType' => function($postType) {
         			$postType->select('id', 'type');
         		}])->findOrFail($id);
+			if ($postOld->user_id != $request->user()->id) {
+				return response()->json(['message' => __('You are not permissoned to edit this post')], Response::HTTP_BAD_REQUEST);
+			}
 			$rooms = $this->room->where('post_id', $id)->get();
 			$districts = District::select('id', 'district')->get();
 			$costs = Cost::select('id', 'cost')->get();
@@ -204,9 +211,11 @@ class PostController extends APIController
 	 */
 	public function update($id, Request $request)
 	{
-		if (!$request->has('status')) {
+		$post = $this->post->findOrFail($id);
+		if (!$request->has('is_active') && $this->permission($request->user()->id, $post)) {
 			try {
-				$post = $this->post->findOrFail($id)->update($request->all());
+				$request->request->add(['id' => $id]);
+				$post = $post->updateNotNull($request->all());
 				if ($post) {
 					$message = __('Update this post success');
 					$response = Response::HTTP_OK;
@@ -219,7 +228,7 @@ class PostController extends APIController
 				$response = Response::HTTP_NOT_FOUND;
 			}
 		} else {
-			return response()->json(['message' => __('Cannot update status')], Response::HTTP_BAD_REQUEST);
+			return response()->json(['message' => __('Has error during process')], Response::HTTP_BAD_REQUEST);
 		}
 
 		return response()->json(['message' => $message], $response);

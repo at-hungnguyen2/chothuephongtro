@@ -56,17 +56,20 @@ class PostController extends Controller
      */
     public function update($id, Request $request)
     {
-    	$request = $request->except('_method', '_token');
     	try {
     		$post = $this->post->findOrFail($id);
-	    	if (!$request) {
+	    	if ($request->has('status')) {
 	    		$post = $post->update(['status' => ($post->status ? Post::STATUS_NOTREADY : Post::STATUS_READY)]);
-	    		if ($post) {
-	    			flash(__('Update status Successfully!'))->success()->important();
-	    		} else {
-	    			flash(__('Update status failed!'))->error()->important();
-	    		}
-	    	}
+                $message = __('Update status successfully');
+            } else if ($request->has('is_active')) {
+                $post = $post->update(['is_active' => ($post->is_active ? Post::NOT_ACTIVE : Post::ACTIVE)]);
+                $message = __('Update active successfully');
+            }
+    		if ($post) {
+    			flash($message)->success()->important();
+    		} else {
+    			flash($message)->error()->important();
+    		}
     	} catch (ModelNotFoundException $e) {
     		flash(__('Post has been not found'))->error()->important();
     	}

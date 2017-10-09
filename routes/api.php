@@ -19,6 +19,8 @@ Route::middleware('auth:api')->group(function() {
 		Route::post('/{post_id}/rooms', 'API\RoomController@store');
 	});
 	Route::get('/users', 'API\UserController@show');
+	Route::get('/users/edit', 'API\UserController@edit');
+	Route::post('/users/update', 'API\UserController@update');
 	Route::resource('comments', 'API\CommentController', ['only' => ['update', 'destroy']]);
 	Route::resource('rooms', 'API\RoomController', ['only' => ['create', 'edit', 'update', 'destroy']]);
 	Route::resource('posts', 'API\PostController', ['only' => ['create', 'edit', 'store', 'update', 'destroy']]);

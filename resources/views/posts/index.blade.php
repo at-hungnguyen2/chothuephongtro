@@ -49,11 +49,17 @@
                                         	<form method="POST" action="/posts/{{ $post->id }}">
                                         		<input type="hidden" name="_method" value="PUT">
                                         		<input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="status" value="{{ $post->status }}">
                                             	<button type="submit" class="btn-xs btn-primary"><i class="fa fa-certificate {{ ($post->status == 1) ? 'admin':'normal' }}"></i></button>
                                             </form>
                                         </td>
                                         <td>
-                                            <i class="fa fa-check {{ ($post->is_active == 1) ? 'admin':'normal' }}"></i>
+                                            <form method="POST" action="/posts/{{ $post->id }}">
+                                                <input type="hidden" name="_method" value="PUT">
+                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="is_active" value="{{ $post->is_active }}">
+                                                <button type="submit" class="btn-xs btn-primary"><i class="fa fa-certificate {{ ($post->is_active == 1) ? 'admin':'normal' }}"></i></button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach

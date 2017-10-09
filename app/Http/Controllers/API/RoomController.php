@@ -11,9 +11,12 @@ use App\Subject;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
+use App\Traits\Permission;
 
 class RoomController extends APIController
 {
+	use Permission;
+
 	protected $room;
 
 	public function __construct(Room $room)
@@ -105,8 +108,11 @@ class RoomController extends APIController
         			$subject->select('id', 'subject');
         		},
         		'post' => function($post) {
-        			$post->select('id', 'title');
+        			$post->select('id', 'title', 'user_id');
         		}])->findOrFail($id);
+			if ($room->post->user_id != $request->user()->id) {
+				return response()->json(['message' => __('You are not permissoned to edit this room')], Response::HTTP_BAD_REQUEST);
+			}
 			$posts = Post::select('id', 'title')->where('id', $request->user()->id)->get();
 			$subjects = Subject::select('id', 'subject')->get();
 			return response()->json(['oldRoom' => $room, 'posts' => $posts, 'subjects' => $subjects, 'success' => true], Response::HTTP_OK);
@@ -127,14 +133,22 @@ class RoomController extends APIController
 	public function update($id, Request $request)
 	{
 		try {
-			$room = $this->room->findOrFail($id)->update($request->all());
-			if ($room) {
-				$message = __('Update this room success');
-				$response = Response::HTTP_OK;
+			$room = $this->room->with('post')->findOrFail($id);
+			if ($this->permission($request->user()->id, $room->post)) {
+				$request->request->add(['id' => $id]);
+				$room = $room->updateNotNull($request->all());
+				if ($room) {
+					$message = __('Update this room success');
+					$response = Response::HTTP_OK;
+				} else {
+					$message = __('Has error during update this room');
+					$response = Response::HTTP_BAD_REQUEST;
+				}	
 			} else {
-				$message = __('Has error during update this room');
+				$message = __('Dont have permission to update this room');
 				$response = Response::HTTP_BAD_REQUEST;
 			}
+			
 		} catch (ModelNotFoundException $e) {
 			$message = __('This room has been not found');
 			$response = Response::HTTP_NOT_FOUND;
