@@ -36,9 +36,9 @@ class PostController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		$posts = $this->post->with(
+		$posts = $this->post->filter($request->all())->with(
         		['user' => function($user) {
         			$user->select('id', 'name');
         		},
@@ -56,7 +56,16 @@ class PostController extends APIController
         		}])
 				->where('is_active', Post::ACTIVE)->where('status', Post::STATUS_READY)
 				->paginate(POST::ITEMS_PER_PAGE);
-		return response()->json(['data' => $posts, 'success' => true], Response::HTTP_OK);
+		$subjects = Subject::select('id', 'subject')->get();
+		$postTypes = PostType::select('id', 'type')->get();
+		$costs = Cost::select('id', 'cost')->get();
+		return response()->json([
+			'data' => $posts,
+			'subjects' => $subjects,
+			'postTypes' => $postTypes,
+			'costs' => $costs,
+			'success' => true
+		], Response::HTTP_OK);
 	}
 
 	/**

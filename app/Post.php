@@ -14,6 +14,9 @@ class Post extends Model
     CONST STATUS_NOTREADY = 0;
     CONST NOT_ACTIVE = 0;
     CONST ACTIVE = 1;
+    CONST POST_TYPE = 0;
+    CONST COST = 1;
+    CONST SUBJECT = 2;
 	
     protected $fillable = [
     	'user_id', 'post_type_id', 'cost_id', 'subject_id', 'district_id', 'street_id', 'title', 'image', 'content', 'address', 'lat', 'lng', 'status', 'is_active'
@@ -52,5 +55,28 @@ class Post extends Model
     public function rooms()
     {
         return $this->hasMany('App\Room', 'post_id', 'id');
+    }
+
+    public function filter($data)
+    {
+        $key = $data['key'];
+        $value = $data['value'];
+        if ($value) {
+            switch ($key) {
+                case null:
+                    return $this;
+                    break;
+                case self::POST_TYPE:
+                    return $this->where('post_type_id', $value);
+                    break;
+                case self::COST:
+                    return $this->where('cost_id', $value);
+                    break;
+                case self::SUBJECT:
+                    return $this->where('subject_id', $value);
+                    break;
+            }
+        }
+        return $this;
     }
 }

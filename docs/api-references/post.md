@@ -23,9 +23,6 @@ Add new post from client.
 | district_id | Integer | required | Id of district |
 | lat | decimal(10, 7) | required | Google map lat |
 | lng | decimal(10, 7) | required | Google map lng |
-| room[][amount] | Integer | not required | Amount of people |
-| room[][cost_id] | Integer | not required | cost_id - Can change to string to add specific value |
-| room[][subject_id] | Integer | not required | subject_id - 0 - Male, 1 - Female, 2 - All |
 
 #### Sample Request
 ```json
@@ -38,12 +35,6 @@ Add new post from client.
 	"cost_id": 3,
 	"subject_id": 1,
 	"district_id": 2,
-    "room[0][amount]": 3,
-    "room[0][cost_id]": 1,
-    "room[0][subject_id]": 2,
-    "room[1][amount]": 3,
-    "room[1][cost_id]": 1,
-    "room[1][subject_id]": 2
 }
 ```
 #### Sample Response
@@ -96,9 +87,16 @@ Add new post from client.
 
 ### `GET` ALL POST
 ```
-/api/posts
+/api/posts?key=&value=
 ```
 Get all post
+
+#### Request Define
+| Key |  |
+|---|---|
+| 0 | Post Type Id |
+| 1 | Cost Id |
+| 2 | Subject Id |
 
 #### Request header
 | Key | Value |
