@@ -33,26 +33,45 @@ class RoomController extends APIController
 	 */
 	public function store(Request $request, $postId)
 	{	
+		DB::beginTransaction();
+		$fileNames = array();
+		$roomData = array();
+		$amounts = $request->amount;
+		$subjects = $request->subject_id;
+		$costs = $request->cost;
+		$counts = count($amounts)
 		if ($request->file('image')) {
-			if ($request->file('image')->isValid()) {
-				$destinationPath = public_path().env("ROOM_PATH");
-				$fileName = env('POST_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+			$images = $request->images;
+			$i = 0;
+			foreach ($images as $image) {
+				if ($image->isValid()) {
+					$destinationPath = public_path().env("ROOM_PATH");
+					$fileNames[$i] = env('POST_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+					$image->move($destinationPath, $fileNames[$i]);
+				} else {
+					$fileNames[$i] = 'default_image.jpg';
+				}
+				$i++;
 			}
 		} else {
-			$fileName = 'default_image.jpg';
-		}
-		$request->request->add(['post_id' => $postId]);
-		$roomData = $request->all();
-		$roomData['image'] = $fileName;
-		$room = $this->room->create($roomData);
-		if ($room) {
-			if ($request->hasFile('image')) {
-				$request->image->move($destinationPath, $fileName);
+			for ($i = 0; $i < $counts; $i++) {
+				$fileNames[$i] = 'default_image.jpg';
 			}
-			return response()->json(['room' => $room, 'success' => true], Response::HTTP_OK);
 		}
-
-		return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
+		for ($i = 0; $i < $counts; $i++) {
+			$roomData['subject_id'] = $subjects[$i];
+			$roomData['cost'] = $costs[$i];
+			$roomData['amount'] = $amounts[$i];
+			$roomData['post_id'] = $postId;
+			$roomData['image'] = $fileNames[$i];
+			$room = $this->room->create($roomData);
+			if (!$room) {
+				DB::rollback();
+				return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
+			}
+		}
+		DB::commit();
+		return response()->json(['room' => $room, 'success' => true], Response::HTTP_OK);
 	}
 
 	/**
@@ -113,7 +132,7 @@ class RoomController extends APIController
 			if ($room->post->user_id != $request->user()->id) {
 				return response()->json(['message' => __('You are not permissoned to edit this room')], Response::HTTP_BAD_REQUEST);
 			}
-			$posts = Post::select('id', 'title')->where('id', $request->user()->id)->get();
+			$posts = Post::select('id', 'title')->where('user_id', $request->user()->id)->get();
 			$subjects = Subject::select('id', 'subject')->get();
 			return response()->json(['oldRoom' => $room, 'posts' => $posts, 'subjects' => $subjects, 'success' => true], Response::HTTP_OK);
 		} catch (ModelNotFoundException $e) {
