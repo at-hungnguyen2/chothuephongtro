@@ -8,6 +8,7 @@ use App\User;
 use Laravel\Passport\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use App\Post;
 
 class UserController extends APIController
 {
@@ -29,12 +30,13 @@ class UserController extends APIController
      */
     public function show(Request $request)
     {
-        $user = $request->user()->with('posts.rooms')->get();
+        $user = $request->user();
+        $posts = Post::where('user_id', $user->id)->with('rooms')->get();
         if (!$user) {
             return response()->json(['success' => false, 'message' => __('Error during get current user')], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json(['data' => $user,'success' => true], Response::HTTP_OK);
+        return response()->json(['user' => $user, 'post' => $posts, 'success' => true], Response::HTTP_OK);
     }
 
     /**
