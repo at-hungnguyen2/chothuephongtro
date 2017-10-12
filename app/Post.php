@@ -59,25 +59,28 @@ class Post extends Model
 
     public function filter($data)
     {
-        if (array_key_exists('key', $data)&&array_key_exists('value', $data)) {
-            $key = $data['key'];
-            $value = $data['value'];
-            if ($value) {
-                switch ($key) {
-                    case null:
-                        return $this;
-                        break;
-                    case self::POST_TYPE:
-                        return $this->where('post_type_id', $value);
-                        break;
-                    case self::COST:
-                        return $this->where('cost_id', $value);
-                        break;
-                    case self::SUBJECT:
-                        return $this->where('subject_id', $value);
-                        break;
-                }
-            }
+        if (!empty($data)) {
+            $posts = $this->where(function ($query) use ($data) {
+                foreach ($data as $key => $value) {
+                    switch ($key) {
+                        case null:
+                            break;
+                        case 'post_type_id':
+                            $query->where('post_type_id', $value);
+                            break;
+                        case 'cost_id':
+                            $query->where('cost_id', $value);
+                            break;
+                        case 'subject_id':
+                            $query->where('subject_id', $value);
+                            break;
+                        case 'district_id':
+                            $query->where('subject_id', $value);
+                            break;
+                    }
+                }  
+            });
+            return $posts;
         }
         return $this;
     }
