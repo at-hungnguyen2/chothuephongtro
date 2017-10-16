@@ -59,11 +59,13 @@ class PostController extends APIController
 		$subjects = Subject::select('id', 'subject')->get();
 		$postTypes = PostType::select('id', 'type')->get();
 		$costs = Cost::select('id', 'cost')->get();
+		$districts = District::select('id', 'district')->get();
 		return response()->json([
 			'data' => $posts,
 			'subjects' => $subjects,
 			'postTypes' => $postTypes,
 			'costs' => $costs,
+			'districts' => $districts,
 			'success' => true
 		], Response::HTTP_OK);
 	}
