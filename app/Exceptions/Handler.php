@@ -73,7 +73,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof AuthorizationException) {
-            return $this->errorResponse($exception->getMessages(), 403);
+            return $this->errorResponse($exception->getMessage(), 403);
         }
 
         if ($exception instanceof NotFoundHttpException) {

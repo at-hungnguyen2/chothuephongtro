@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Requests\StoreRoomRequest;
+use App\Http\Requests\UpdateRoomRequest;
+use App\Http\Requests\DeleteRoomRequest;
 use App\Post;
 use App\Comment;
 use App\Room;
@@ -13,10 +15,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
 use App\Traits\Permission;
+use Illuminate\Support\Facades\File;
+use App\Traits\ApiResponser;
 
 class RoomController extends APIController
 {
-	use Permission;
+	use Permission, ApiResponser;
 
 	protected $room;
 
@@ -127,18 +131,14 @@ class RoomController extends APIController
 	 */
 	public function show($id)
 	{
-		try {
-			$room = $this->room->with([
-        		'subject' => function($subject) {
-        			$subject->select('id', 'subject');
-        		},
-        		'post' => function($post) {
-        			$post->select('id', 'title');
-        		}])->findOrFail($id);
-			return response()->json(['data' => $room, 'success' => true], Response::HTTP_OK);
-		} catch(ModelNotFoundException $e) {
-			return response()->json(['message' => __('This post is not found')], Response::HTTP_NOT_FOUND);
-		}
+		$room = $this->room->with([
+    		'subject' => function($subject) {
+    			$subject->select('id', 'subject');
+    		},
+    		'post' => function($post) {
+    			$post->select('id', 'title');
+    		}])->findOrFail($id);
+		return response()->json(['data' => $room, 'success' => true], Response::HTTP_OK);
 	}
 
 	/**
@@ -150,24 +150,22 @@ class RoomController extends APIController
 	 */
 	public function edit($id, Request $request)
 	{
-		try {
-			$room = $this->room->with([
-        		'subject' => function($subject) {
-        			$subject->select('id', 'subject');
-        		},
-        		'post' => function($post) {
-        			$post->select('id', 'title', 'user_id');
-        		}])->findOrFail($id);
-			if ($room->post->user_id != $request->user()->id) {
-				return response()->json(['message' => __('You are not permissoned to edit this room')], Response::HTTP_BAD_REQUEST);
-			}
-			$posts = Post::select('id', 'title')->where('user_id', $request->user()->id)->get();
-			$subjects = Subject::select('id', 'subject')->get();
-			return response()->json(['oldRoom' => $room, 'posts' => $posts, 'subjects' => $subjects, 'success' => true], Response::HTTP_OK);
-		} catch (ModelNotFoundException $e) {
-			$message = __('This room has been not found');
-			$response = Response::HTTP_NOT_FOUND;
+		$room = $this->room->with([
+    		'subject' => function($subject) {
+    			$subject->select('id', 'subject');
+    		},
+    		'post' => function($post) {
+    			$post->select('id', 'title', 'user_id');
+    		}])->findOrFail($id);
+
+		if ($room->post->user_id != $request->user()->id) {
+			return response()->json(['message' => __('You are not permissoned to edit this room')], Response::HTTP_BAD_REQUEST);
 		}
+
+		$posts = Post::select('id', 'title')->where('user_id', $request->user()->id)->get();
+		$subjects = Subject::select('id', 'subject')->get();
+
+		return response()->json(['oldRoom' => $room, 'posts' => $posts, 'subjects' => $subjects, 'success' => true], Response::HTTP_OK);
 	}
 
 	/**
@@ -178,31 +176,32 @@ class RoomController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function update($id, Request $request)
+	public function update(Room $room, UpdateRoomRequest $request)
 	{
-		try {
-			$room = $this->room->with('post')->findOrFail($id);
-			if ($this->permission($request->user()->id, $room->post)) {
-				$request->request->add(['id' => $id]);
-				$room = $room->updateNotNull($request->all());
-				if ($room) {
-					$message = __('Update this room success');
-					$response = Response::HTTP_OK;
-				} else {
-					$message = __('Has error during update this room');
-					$response = Response::HTTP_BAD_REQUEST;
-				}	
-			} else {
-				$message = __('Dont have permission to update this room');
-				$response = Response::HTTP_BAD_REQUEST;
+		if ($request->hasFile('image')) {
+			if ($request->file('image')->isValid()) {
+				$destinationPath = public_path().env('ROOM_PATH');
+				$fileName = env('ROOM_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
 			}
-			
-		} catch (ModelNotFoundException $e) {
-			$message = __('This room has been not found');
-			$response = Response::HTTP_NOT_FOUND;
+		} else {
+			$fileName = 'default_image.jpg';
 		}
-
-		return response()->json(['message' => $message], $response);
+		$oldFileName = $room->image;
+		$request->request->add(['id' => $room->id]);
+		$dataRoom = $request->all();
+		$dataRoom['image'] = $fileName;
+		$room = $room->update(array_filter($dataRoom));
+		if ($room) {
+			if ($request->hasFile('image')) {
+				$request->image->move($destinationPath, $fileName);
+			}
+			if ($oldFileName) {
+				File::delete(public_path().env('ROOM_PATH').'/'.$oldFileName);
+			}
+			return $this->successResponse('Update this room success', Response::HTTP_OK);
+		} else {
+			return $this->errorResponse('Has error during update this room', Response::HTTP_BAD_REQUEST);
+		}
 	}
 
 	/**
@@ -212,20 +211,15 @@ class RoomController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function destroy($id)
+	public function destroy(Room $room, DeleteRoomRequest $request)
 	{
-		try {
-			$room = $this->room->findOrFail($id)->delete();
-			if ($room) {
-				$message = __('Delete this room succeed');
-				$response = Response::HTTP_OK;
-			} else {
-				$message = __('Has error during delete this room');
-				$response = Response::HTTP_BAD_REQUEST;
-			}
-		} catch (ModelNotFoundException $e) {
-			$message = __('This room has been not found');
-			$response = Response::HTTP_NOT_FOUND;
+		$room = $room->delete();
+		if ($room) {
+			$message = __('Delete this room succeed');
+			$response = Response::HTTP_OK;
+		} else {
+			$message = __('Has error during delete this room');
+			$response = Response::HTTP_BAD_REQUEST;
 		}
 
 		return response()->json(['message' => $message], $response);

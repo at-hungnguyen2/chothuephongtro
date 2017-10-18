@@ -4,9 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
-use App\Post;
 
-class UpdatePostRequest extends FormRequest
+class DeletePostRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -17,7 +16,7 @@ class UpdatePostRequest extends FormRequest
     {
         $post = $this->route('post');
 
-        return $request->user()->can('update', $post);
+        return $request->user()->can('delete', $post);
     }
 
     /**
@@ -28,7 +27,7 @@ class UpdatePostRequest extends FormRequest
     public function rules()
     {
         return [
-                
+            //
         ];
     }
 }

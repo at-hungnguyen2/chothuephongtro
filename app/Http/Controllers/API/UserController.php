@@ -66,16 +66,12 @@ class UserController extends APIController
      */
     public function edit(Request $request)
     {
-        try {
-            $user = $this->user->findOrFail($request->user()->id);
+        $user = $this->user->findOrFail($request->user()->id);
 
-            return response()->json([
-                    'user' => $user,
-                    'success' => true
-                ], Response::HTTP_OK);
-        } catch(ModelNotFoundException $e) {
-            return response()->json(['message' => __('This user is not found')], Response::HTTP_NOT_FOUND);
-        }
+        return response()->json([
+                'user' => $user,
+                'success' => true
+            ], Response::HTTP_OK);
     }
 
     /**
@@ -88,23 +84,18 @@ class UserController extends APIController
     public function update(Request $request)
     {
         if (!$request->has('is_admin')) {
-            try {
-                $userId = $request->user()->id;
-                $request->request->add(['id' => $userId]);
-                $user = $this->user->findOrFail($userId)->updateNotNull($request->all());
-                if ($user) {
-                    $message = __('Update success');
-                    $response = Response::HTTP_OK;
-                } else {
-                    $message = __('Has error during update your profile');
-                    $response = Response::HTTP_BAD_REQUEST;
-                }
-            } catch (ModelNotFoundException $e) {
-                $message = __('Did you login?');
-                $response = Response::HTTP_NOT_FOUND;
+            $userId = $request->user()->id;
+            $request->request->add(['id' => $userId]);
+            $user = $this->user->findOrFail($userId)->updateNotNull($request->all());
+            if ($user) {
+                $message = __('Update success');
+                $response = Response::HTTP_OK;
+            } else {
+                $message = __('Has error during update your profile');
+                $response = Response::HTTP_BAD_REQUEST;
             }
         } else {
-            return response()->json(['message' => __('Cannot update status')], Response::HTTP_BAD_REQUEST);
+            return response()->json(['message' => __('Cannot update role')], Response::HTTP_BAD_REQUEST);
         }
 
         return response()->json(['message' => $message], $response);

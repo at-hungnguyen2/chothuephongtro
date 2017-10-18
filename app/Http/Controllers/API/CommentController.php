@@ -4,12 +4,16 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreCommentRequest;
+use App\Http\Requests\UpdateCommentRequest;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFountException;
 use App\Comment;
+use App\Traits\ApiResponser;
 
 class CommentController extends APIController
 {
+	use ApiResponser;
+
 	protected $comment;
 
 	/**
@@ -33,10 +37,11 @@ class CommentController extends APIController
 	{
 		$request->request->add(['user_id' => $request->user()->id, 'post_id' => $postId]);
 		$comment = $this->comment->create($request->all());
+
 		if ($comment) {
-			return response()->json(['data' => $comment, 'success' => true], Response::HTTP_OK);
+			return $this->showOne($comment, Response::HTTP_OK);
 		}
-		return response()->json(['message' => __('Create fail')], Response::HTTP_BAD_REQUEST);
+		return $this->errorResponse('Create fail', Response::HTTP_BAD_REQUEST);
 	}
 
 	/**
@@ -47,24 +52,15 @@ class CommentController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function update($id, Request $request)
+	public function update(Comment $comment, UpdateCommentRequest $request)
 	{
-		$comment = $this->comment->findOrFail($id);
-		if ($request->user()->id == $comment->user_id) {
-			$comment->update($request->all());
-			if ($comment) {
-				$message = __('Update succeed');
-				$response = Response::HTTP_OK;
-			} else {
-				$message = __('Update failed');
-				$response = Response::HTTP_BAD_REQUEST;	
-			}
-		} else {
-			$message = __('You can not edit comment of another one');
-			$response = Response::HTTP_BAD_REQUEST;
+		$comment = $comment->update($request->all());
+
+		if ($comment) {
+			return $this->successResponse('Update success', Response::HTTP_OK);
 		}
 
-		return response()->json(['message' => $message], $response);
+		return $this->errorResponse('Update failed', Response::HTTP_BAD_REQUEST);
 	}
 
 	/**
@@ -74,17 +70,14 @@ class CommentController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function destroy($id)
+	public function destroy(Comment $comment, Request $request)
 	{
-		$comment = $this->comment->findOrFail($id)->delete();
+		$comment = $comment->delete();
+
 		if ($comment) {
-			$message = __('Delete this comment succeed');
-			$response = Response::HTTP_OK;
-		} else {
-			$message = __('Has error during delete this comment');
-			$response = Response::HTTP_BAD_REQUEST;
+			return $this->successResponse('Delete this comment succeed', Response::HTTP_OK);
 		}
 
-		return response()->json(['message' => $message], $response);
+		return $this->errorResponse('Has error during delete this comment', Response::HTTP_BAD_REQUEST);
 	}
 }
