@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Http\Requests\StoreRoomRequest;
 use App\Post;
 use App\Comment;
 use App\Room;
@@ -74,7 +75,7 @@ class RoomController extends APIController
 		return response()->json(['room' => $room, 'success' => true], Response::HTTP_OK);
 	}
 
-	public function storeOne(Request $request, $postId)
+	public function storeOne(StoreRoomRequest $request, $postId)
 	{
 		if ($request->hasFile('image') && $request->image->isValid()) {
 			$image = $request->image;

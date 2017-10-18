@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreCommentRequest;
 use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFountException;
 use App\Comment;
@@ -28,7 +29,7 @@ class CommentController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function store(Request $request, $postId)
+	public function store(StoreCommentRequest $request, $postId)
 	{
 		$request->request->add(['user_id' => $request->user()->id, 'post_id' => $postId]);
 		$comment = $this->comment->create($request->all());
@@ -48,24 +49,19 @@ class CommentController extends APIController
 	 */
 	public function update($id, Request $request)
 	{
-		try {
-			$comment = $this->comment->findOrFail($id);
-			if ($request->user()->id == $comment->user_id) {
-				$comment->update($request->all());
-				if ($comment) {
-					$message = __('Update succeed');
-					$response = Response::HTTP_OK;
-				} else {
-					$message = __('Update failed');
-					$response = Response::HTTP_BAD_REQUEST;	
-				}
+		$comment = $this->comment->findOrFail($id);
+		if ($request->user()->id == $comment->user_id) {
+			$comment->update($request->all());
+			if ($comment) {
+				$message = __('Update succeed');
+				$response = Response::HTTP_OK;
 			} else {
-				$message = __('You can not edit comment of another one');
-				$response = Response::HTTP_BAD_REQUEST;
+				$message = __('Update failed');
+				$response = Response::HTTP_BAD_REQUEST;	
 			}
-		} catch (ModelNotFountException $e) {
-			$message = __('This comment has been not found');
-			$response = Response::HTTP_NOT_FOUND;
+		} else {
+			$message = __('You can not edit comment of another one');
+			$response = Response::HTTP_BAD_REQUEST;
 		}
 
 		return response()->json(['message' => $message], $response);
@@ -80,18 +76,13 @@ class CommentController extends APIController
 	 */
 	public function destroy($id)
 	{
-		try {
-			$comment = $this->comment->findOrFail($id)->delete();
-			if ($comment) {
-				$message = __('Delete this comment succeed');
-				$response = Response::HTTP_OK;
-			} else {
-				$message = __('Has error during delete this comment');
-				$response = Response::HTTP_BAD_REQUEST;
-			}
-		} catch (ModelNotFoundException $e) {
-			$message = __('This comment has been not found');
-			$response = Response::HTTP_NOT_FOUND;
+		$comment = $this->comment->findOrFail($id)->delete();
+		if ($comment) {
+			$message = __('Delete this comment succeed');
+			$response = Response::HTTP_OK;
+		} else {
+			$message = __('Has error during delete this comment');
+			$response = Response::HTTP_BAD_REQUEST;
 		}
 
 		return response()->json(['message' => $message], $response);
