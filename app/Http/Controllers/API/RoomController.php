@@ -39,8 +39,8 @@ class RoomController extends APIController
 		$amounts = $request->amount;
 		$subjects = $request->subject_id;
 		$costs = $request->cost;
-		$counts = count($amounts)
-		if ($request->file('image')) {
+		$counts = count($amounts);
+		if ($request->hasFile('image')) {
 			$images = $request->images;
 			$i = 0;
 			foreach ($images as $image) {
@@ -71,6 +71,34 @@ class RoomController extends APIController
 			}
 		}
 		DB::commit();
+		return response()->json(['room' => $room, 'success' => true], Response::HTTP_OK);
+	}
+
+	public function storeOne(Request $request, $postId)
+	{
+		if ($request->hasFile('image') && $request->image->isValid()) {
+			$image = $request->image;
+			$destinationPath = public_path().env("ROOM_PATH");
+			$fileName = env('POST_PATH')
+						.'/'
+						.str_random(8)
+						.'.'
+						.$request->file('image')
+						->getClientOriginalExtension();
+			$image->move($destinationPath, $fileName);
+		} else {
+			$fileName = 'default_image.jpg';
+		}
+		$roomData = array();
+		$roomData['amount'] = $request->amount;
+		$roomData['subject_id'] = $request->subject_id;
+		$roomData['cost'] = $request->cost;
+		$roomData['post_id'] = $postId;
+		$roomData['image'] = $fileName;
+		$room = $this->room->create($roomData);
+		if (!$room) {
+			return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
+		}
 		return response()->json(['room' => $room, 'success' => true], Response::HTTP_OK);
 	}
 

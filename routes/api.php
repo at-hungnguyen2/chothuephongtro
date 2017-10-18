@@ -17,6 +17,7 @@ Route::middleware('auth:api')->group(function() {
 	Route::prefix('posts')->group(function() {
 		Route::post('/{post_id}/comments', 'API\CommentController@store');
 		Route::post('/{post_id}/rooms', 'API\RoomController@store');
+		Route::post('/{post_id}/room', 'API\RoomController@storeOne');
 	});
 	Route::get('/users', 'API\UserController@show');
 	Route::get('/users/edit', 'API\UserController@edit');

@@ -63,23 +63,21 @@ class Post extends Model
         if (!empty($data)) {
             $posts = $this->where(function ($query) use ($data) {
                 foreach ($data as $key => $value) {
-                    if ($value) {
-                        switch ($key) {
-                            case null:
-                                break;
-                            case 'post_type_id':
-                                $query->where('post_type_id', $value);
-                                break;
-                            case 'cost_id':
-                                $query->where('cost_id', $value);
-                                break;
-                            case 'subject_id':
-                                $query->where('subject_id', $value);
-                                break;
-                            case 'district_id':
-                                $query->where('subject_id', $value);
-                                break;
-                        }
+                    switch ($key) {
+                        case null:
+                            break;
+                        case 'post_type_id':
+                            $query->where('post_type_id', $value);
+                            break;
+                        case 'cost_id':
+                            $query->where('cost_id', $value);
+                            break;
+                        case 'subject_id':
+                            $query->where('subject_id', $value);
+                            break;
+                        case 'district_id':
+                            $query->where('subject_id', $value);
+                            break;
                     }
                 }  
             });
