@@ -4,9 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
-use App\Post;
 
-class UpdatePostRequest extends FormRequest
+class UpdateCommentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,9 +14,9 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize(Request $request)
     {
-        $post = $this->route('post');
+        $comment = $this->route('comment');
 
-        return $request->user()->can('update', $post);
+        return $request->user()->can('update', $comment);
     }
 
     /**
@@ -28,7 +27,7 @@ class UpdatePostRequest extends FormRequest
     public function rules()
     {
         return [
-                
+            'comment' => 'required',
         ];
     }
 }

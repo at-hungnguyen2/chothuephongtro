@@ -6,6 +6,12 @@ use Laravel\Passport\Passport;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Carbon\Carbon;
+use App\Post;
+use App\Policies\PostPolicy;
+use App\Room;
+use App\Policies\RoomPolicy;
+use App\Comment;
+use App\Policies\CommentPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,6 +22,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         'App\Model' => 'App\Policies\ModelPolicy',
+        Post::class => PostPolicy::class,
+        Room::class => RoomPolicy::class,
+        Comment::class => CommentPolicy::class,
     ];
 
     /**

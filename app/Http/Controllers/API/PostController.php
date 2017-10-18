@@ -217,9 +217,8 @@ class PostController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function update($id, UpdatePostRequest $request)
+	public function update(Post $post, UpdatePostRequest $request)
 	{
-		$post = $this->post->findOrFail($id);
 		if ($request->has('is_active')) {
 			$request->except('is_active');
 		}
@@ -232,9 +231,10 @@ class PostController extends APIController
 			$fileName = 'default_image.jpg';
 		}
 		$oldFileName = $post->image;
-		$request->request->add(['id' => $id, 'image' => $fileName]);
-		dd($request->all());
-		$post = $post->update(array_filter($request->all()));
+		$request->request->add(['id' => $post->id]);
+		$dataPost = $request->all();
+		$dataPost['image'] = $fileName;
+		$post = $post->update(array_filter($dataPost));
 		if ($post) {
 			if ($request->hasFile('image')) {
 				$request->image->move($destinationPath, $fileName);
@@ -255,9 +255,9 @@ class PostController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function destroy($id)
+	public function destroy(Post $post, Request $request)
 	{
-		$post = $this->post->findOrFail($id)->delete();
+		$post = $post->delete();
 		if ($post) {
 			return $this->successResponse(__('Delete this post succeed'), Response::HTTP_OK);
 		} else {
