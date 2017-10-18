@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Http\Response;
 use App\Post;
 use App\Comment;
@@ -15,10 +17,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
 use App\Traits\Permission;
+use App\Traits\ApiResponser;
+use Illuminate\Support\Facades\File;
 
 class PostController extends APIController
 {
-	use Permission;
+	use Permission, ApiResponser;
 
 	protected $post;
 	protected $comment;
@@ -60,6 +64,7 @@ class PostController extends APIController
 		$postTypes = PostType::select('id', 'type')->get();
 		$costs = Cost::select('id', 'cost')->get();
 		$districts = District::select('id', 'district')->get();
+
 		return response()->json([
 			'data' => $posts,
 			'subjects' => $subjects,
@@ -99,7 +104,7 @@ class PostController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function store(Request $request)
+	public function store(StorePostRequest $request)
 	{
 		if ($request->hasFile('image')) {
 			if ($request->file('image')->isValid()) {
@@ -119,7 +124,7 @@ class PostController extends APIController
 			if ($request->hasFile('image')) {
 				$request->image->move($destinationPath, $fileName);
 			}
-			return response()->json(['data' => $post, 'success' => true], Response::HTTP_OK);
+			return $this->successResponse($post, Response::HTTP_OK);
 		}	
 	
 		return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
@@ -134,34 +139,30 @@ class PostController extends APIController
 	 */
 	public function show($id)
 	{
-		try {
-			$post = $this->post->with(
-        		['user' => function($user) {
-        			$user->select('id', 'name', 'email', 'phone_number');
-        		},
-        		'district' => function($district) {
-        			$district->select('id', 'district');
-        		},
-        		'cost' => function($cost) {
-        			$cost->select('id', 'cost');
-        		},
-        		'subject' => function($subject) {
-        			$subject->select('id', 'subject');
-        		},
-        		'postType' => function($postType) {
-        			$postType->select('id', 'type');
-        		}])->findOrFail($id);
-			$rooms = $this->room->where('post_id', $id)->get();
-			$comments = $this->comment->getPostComments($id);
-			return response()->json([
-					'data' => $post,
-					'rooms' => $rooms,
-					'comments' => $comments,
-					'success' => true
-				], Response::HTTP_OK);
-		} catch(ModelNotFoundException $e) {
-			return response()->json(['message' => __('This post is not found')], Response::HTTP_NOT_FOUND);
-		}
+		$post = $this->post->with(
+    		['user' => function($user) {
+    			$user->select('id', 'name', 'email', 'phone_number');
+    		},
+    		'district' => function($district) {
+    			$district->select('id', 'district');
+    		},
+    		'cost' => function($cost) {
+    			$cost->select('id', 'cost');
+    		},
+    		'subject' => function($subject) {
+    			$subject->select('id', 'subject');
+    		},
+    		'postType' => function($postType) {
+    			$postType->select('id', 'type');
+    		}])->findOrFail($id);
+		$rooms = $this->room->where('post_id', $id)->get();
+		$comments = $this->comment->getPostComments($id);
+		return response()->json([
+				'data' => $post,
+				'rooms' => $rooms,
+				'comments' => $comments,
+				'success' => true
+			], Response::HTTP_OK);
 	}
 
 	/**
@@ -173,8 +174,7 @@ class PostController extends APIController
 	 */
 	public function edit(Request $request, $id)
 	{
-		try {
-			$postOld = $this->post->with(
+		$postOld = $this->post->with(
         		['user' => function($user) {
         			$user->select('id', 'name', 'email', 'phone_number');
         		},
@@ -191,7 +191,7 @@ class PostController extends APIController
         			$postType->select('id', 'type');
         		}])->findOrFail($id);
 			if ($postOld->user_id != $request->user()->id) {
-				return response()->json(['message' => __('You are not permissoned to edit this post')], Response::HTTP_BAD_REQUEST);
+				return $this->errorResponse(__('You are not permissoned to edit this post'), Response::HTTP_BAD_REQUEST);
 			}
 			$rooms = $this->room->where('post_id', $id)->get();
 			$districts = District::select('id', 'district')->get();
@@ -207,9 +207,6 @@ class PostController extends APIController
 					'postTypes' => $postTypes,
 					'success' => true
 				], Response::HTTP_OK);
-		} catch(ModelNotFoundException $e) {
-			return response()->json(['message' => __('This post is not found')], Response::HTTP_NOT_FOUND);
-		}
 	}
 
 	/**
@@ -220,29 +217,35 @@ class PostController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function update($id, Request $request)
+	public function update($id, UpdatePostRequest $request)
 	{
 		$post = $this->post->findOrFail($id);
-		if (!$request->has('is_active') && $this->permission($request->user()->id, $post)) {
-			try {
-				$request->request->add(['id' => $id]);
-				$post = $post->updateNotNull($request->all());
-				if ($post) {
-					$message = __('Update this post success');
-					$response = Response::HTTP_OK;
-				} else {
-					$message = __('Has error during update this post');
-					$response = Response::HTTP_BAD_REQUEST;
-				}
-			} catch (ModelNotFoundException $e) {
-				$message = __('This post has been not found');
-				$response = Response::HTTP_NOT_FOUND;
+		if ($request->has('is_active')) {
+			$request->except('is_active');
+		}
+		if ($request->hasFile('image')) {
+			if ($request->file('image')->isValid()) {
+				$destinationPath = public_path().env('POST_PATH');
+				$fileName = env('POST_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
 			}
 		} else {
-			return response()->json(['message' => __('Has error during process')], Response::HTTP_BAD_REQUEST);
+			$fileName = 'default_image.jpg';
 		}
-
-		return response()->json(['message' => $message], $response);
+		$oldFileName = $post->image;
+		$request->request->add(['id' => $id, 'image' => $fileName]);
+		dd($request->all());
+		$post = $post->update(array_filter($request->all()));
+		if ($post) {
+			if ($request->hasFile('image')) {
+				$request->image->move($destinationPath, $fileName);
+			}
+			if ($oldFileName) {
+				File::delete(public_path().env('POST_PATH').'/'.$oldFileName);
+			}
+			return $this->successResponse('Update this post success', Response::HTTP_OK);
+		} else {
+			return $this->errorResponse('Has error during update this post', Response::HTTP_BAD_REQUEST);
+		}
 	}
 
 	/**
@@ -254,20 +257,11 @@ class PostController extends APIController
 	 */
 	public function destroy($id)
 	{
-		try {
-			$post = $this->post->findOrFail($id)->delete();
-			if ($post) {
-				$message = __('Delete this post succeed');
-				$response = Response::HTTP_OK;
-			} else {
-				$message = __('Has error during delete this post');
-				$response = Response::HTTP_BAD_REQUEST;
-			}
-		} catch (ModelNotFoundException $e) {
-			$message = __('This post has been not found');
-			$response = Response::HTTP_NOT_FOUND;
+		$post = $this->post->findOrFail($id)->delete();
+		if ($post) {
+			return $this->successResponse(__('Delete this post succeed'), Response::HTTP_OK);
+		} else {
+			return $this->errorResponse(__('Has error during delete this post'), Response::HTTP_BAD_REQUEST);
 		}
-
-		return response()->json(['message' => $message], $response);
 	}
 }
