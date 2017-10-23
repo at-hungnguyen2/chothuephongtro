@@ -14,13 +14,12 @@ use App\Subject;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
-use App\Traits\Permission;
 use Illuminate\Support\Facades\File;
 use App\Traits\ApiResponser;
 
 class RoomController extends APIController
 {
-	use Permission, ApiResponser;
+	use ApiResponser;
 
 	protected $room;
 
@@ -51,7 +50,7 @@ class RoomController extends APIController
 			foreach ($images as $image) {
 				if ($image->isValid()) {
 					$destinationPath = public_path().env("ROOM_PATH");
-					$fileNames[$i] = env('POST_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+					$fileNames[$i] = env('ROOM_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
 					$image->move($destinationPath, $fileNames[$i]);
 				} else {
 					$fileNames[$i] = 'default_image.jpg';
@@ -84,7 +83,7 @@ class RoomController extends APIController
 		if ($request->hasFile('image') && $request->image->isValid()) {
 			$image = $request->image;
 			$destinationPath = public_path().env("ROOM_PATH");
-			$fileName = env('POST_PATH')
+			$fileName = env('ROOM_PATH')
 						.'/'
 						.str_random(8)
 						.'.'

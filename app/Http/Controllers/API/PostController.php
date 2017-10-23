@@ -16,13 +16,12 @@ use App\Subject;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
-use App\Traits\Permission;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\File;
 
 class PostController extends APIController
 {
-	use Permission, ApiResponser;
+	use ApiResponser;
 
 	protected $post;
 	protected $comment;
@@ -59,6 +58,7 @@ class PostController extends APIController
         			$postType->select('id', 'type');
         		}])
 				->where('is_active', Post::ACTIVE)->where('status', Post::STATUS_READY)
+				->orderBy('created_at', 'desc')
 				->paginate(POST::ITEMS_PER_PAGE);
 		$subjects = Subject::select('id', 'subject')->get();
 		$postTypes = PostType::select('id', 'type')->get();
@@ -156,7 +156,7 @@ class PostController extends APIController
     			$postType->select('id', 'type');
     		}])->findOrFail($id);
 		$rooms = $this->room->where('post_id', $id)->get();
-		$comments = $this->comment->getPostComments($id);
+		$comments = $this->comment->with('user')->where('post_id', $id)->get();
 		return response()->json([
 				'data' => $post,
 				'rooms' => $rooms,
