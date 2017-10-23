@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-	CONST ITEMS_PER_PAGE = 5;
+	CONST ITEMS_PER_PAGE = 10;
 
 	protected $fillable = [
 		'user_id', 'post_id', 'comment'

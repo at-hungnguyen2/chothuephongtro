@@ -81,6 +81,7 @@ class RoomController extends APIController
 
 	public function storeOne(StoreRoomRequest $request, $postId)
 	{
+		//dd($request->all());
 		if ($request->hasFile('image') && $request->image->isValid()) {
 			$image = $request->image;
 			$destinationPath = public_path().env("ROOM_PATH");
@@ -100,6 +101,7 @@ class RoomController extends APIController
 		$roomData['cost'] = $request->cost;
 		$roomData['post_id'] = $postId;
 		$roomData['image'] = $fileName;
+		//dd($roomData);
 		$room = $this->room->create($roomData);
 		if (!$room) {
 			return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);

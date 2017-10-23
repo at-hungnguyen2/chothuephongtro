@@ -59,7 +59,7 @@ class PostController extends APIController
         			$postType->select('id', 'type');
         		}])
 				->where('is_active', Post::ACTIVE)->where('status', Post::STATUS_READY)
-				->paginate(POST::ITEMS_PER_PAGE);
+				->paginate(9);
 		$subjects = Subject::select('id', 'subject')->get();
 		$postTypes = PostType::select('id', 'type')->get();
 		$costs = Cost::select('id', 'cost')->get();
@@ -156,7 +156,7 @@ class PostController extends APIController
     			$postType->select('id', 'type');
     		}])->findOrFail($id);
 		$rooms = $this->room->where('post_id', $id)->get();
-		$comments = $this->comment->getPostComments($id);
+		$comments = $this->comment->with('user')->where('post_id', $id)->get();
 		return response()->json([
 				'data' => $post,
 				'rooms' => $rooms,
