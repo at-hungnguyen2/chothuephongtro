@@ -14,13 +14,12 @@ use App\Subject;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\DB;
-use App\Traits\Permission;
 use Illuminate\Support\Facades\File;
 use App\Traits\ApiResponser;
 
 class RoomController extends APIController
 {
-	use Permission, ApiResponser;
+	use ApiResponser;
 
 	protected $room;
 

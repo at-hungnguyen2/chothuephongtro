@@ -33,6 +33,7 @@
                                     <th class="col-md-1">{{ __('District') }}</th>
                                     <th class="col-md-1">{{ __('Status') }}</th>
                                     <th class="col-md-1">{{ __('Active') }}</th>
+                                    <th class="col-md-1">{{ __('Action') }}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -60,6 +61,9 @@
                                                 <input type="hidden" name="is_active" value="{{ $post->is_active }}">
                                                 <button type="submit" class="btn-xs btn-primary"><i class="fa fa-certificate {{ ($post->is_active == 1) ? 'admin':'normal' }}"></i></button>
                                             </form>
+                                        </td>
+                                        <td>
+                                            <a class="btn-xs btn-default" href="{{ route('rooms.index', $post->id) }}"><i class="fa fa-search"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach

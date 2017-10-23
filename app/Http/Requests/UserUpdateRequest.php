@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRoomRequest extends FormRequest
+class UserUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -16,6 +16,7 @@ class StoreRoomRequest extends FormRequest
         return true;
     }
 
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,9 +25,11 @@ class StoreRoomRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => 'required',
-            'subject_id' => 'required',
-            'cost' => 'required'
-        ]
+            'name' => 'required',
+            'password' => 'nullable|min:6',
+            'birthday' => 'date',
+            'phone_number' => 'required|numeric',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ];
     }
 }
