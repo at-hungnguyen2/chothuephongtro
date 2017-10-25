@@ -10,7 +10,6 @@ use App\Post;
 use App\Comment;
 use App\Room;
 use App\District;
-use App\Cost;
 use App\PostType;
 use App\Subject;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -48,28 +47,20 @@ class PostController extends APIController
         		'district' => function($district) {
         			$district->select('id', 'district');
         		},
-        		'cost' => function($cost) {
-        			$cost->select('id', 'cost');
-        		},
         		'subject' => function($subject) {
         			$subject->select('id', 'subject');
         		},
         		'postType' => function($postType) {
         			$postType->select('id', 'type');
         		}])
-				->where('is_active', Post::ACTIVE)->where('status', Post::STATUS_READY)
-				->orderBy('created_at', 'desc')
-				->paginate(POST::ITEMS_PER_PAGE);
+				->where('is_active', Post::ACTIVE)->where('status', Post::STATUS_READY)->orderBy('created_at', 'desc')->paginate(9);
 		$subjects = Subject::select('id', 'subject')->get();
 		$postTypes = PostType::select('id', 'type')->get();
-		$costs = Cost::select('id', 'cost')->get();
 		$districts = District::select('id', 'district')->get();
-
 		return response()->json([
 			'data' => $posts,
 			'subjects' => $subjects,
 			'postTypes' => $postTypes,
-			'costs' => $costs,
 			'districts' => $districts,
 			'success' => true
 		], Response::HTTP_OK);
@@ -84,13 +75,11 @@ class PostController extends APIController
     {
         $districts = District::select('id', 'district')->get();
         $subjects = Subject::select('id', 'subject')->get();
-        $costs = Cost::select('id', 'cost')->get();
         $postTypes = PostType::select('id', 'type')->get();
-        if ($districts && $subjects && $costs && $postTypes) {
+        if ($districts && $subjects && $postTypes) {
         	return response()->json([
         		'districts' => $districts,
         		'subjects' => $subjects,
-        		'costs' => $costs,
         		'postTypes' => $postTypes,
         		'success => true'], Response::HTTP_OK);
         }
@@ -146,16 +135,13 @@ class PostController extends APIController
     		'district' => function($district) {
     			$district->select('id', 'district');
     		},
-    		'cost' => function($cost) {
-    			$cost->select('id', 'cost');
-    		},
     		'subject' => function($subject) {
     			$subject->select('id', 'subject');
     		},
     		'postType' => function($postType) {
     			$postType->select('id', 'type');
     		}])->findOrFail($id);
-		$rooms = $this->room->where('post_id', $id)->get();
+		$rooms = $this->room->where('post_id', $id)->with('subject')->get();
 		$comments = $this->comment->with('user')->where('post_id', $id)->get();
 		return response()->json([
 				'data' => $post,
@@ -181,9 +167,6 @@ class PostController extends APIController
         		'district' => function($district) {
         			$district->select('id', 'district');
         		},
-        		'cost' => function($cost) {
-        			$cost->select('id', 'cost');
-        		},
         		'subject' => function($subject) {
         			$subject->select('id', 'subject');
         		},
@@ -202,7 +185,6 @@ class PostController extends APIController
 					'oldData' => $postOld,
 					'rooms' => $rooms,
 					'districts' => $districts,
-					'costs' => $costs,
 					'subjects' => $subjects,
 					'postTypes' => $postTypes,
 					'success' => true

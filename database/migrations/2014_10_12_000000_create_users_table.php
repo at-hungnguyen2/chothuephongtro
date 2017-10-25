@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->tinyInteger('is_admin')->default(0);
             $table->text('image')->nullable();
             $table->date('birthday')->nullable();
+            $table->string('reset_password_token')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

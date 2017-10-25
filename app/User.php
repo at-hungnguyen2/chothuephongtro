@@ -17,6 +17,7 @@ class User extends Authenticatable
     const MALE = 1;
     const FEMALE = 0;
     const ADMIN = 1;
+    const DEFAULT_PASSWORD = 'abc123';
 
     /**
      * The attributes that are mass assignable.
@@ -24,7 +25,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'phone_number', 'image', 'birthday', 'address'
+        'name', 'email', 'password', 'phone_number', 'image', 'birthday', 'address', 'reset_password_token'
     ];
 
     /**
@@ -33,7 +34,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'reset_password_token'
     ];
 
     public function posts()
@@ -66,5 +67,17 @@ class User extends Authenticatable
             $user->posts()->delete();
             $user->comments()->delete();
         });
+    }
+
+    public function countDeletedPosts()
+    {
+        $postsCount = DB::table('posts')->where('user_id', $this->id)->whereNotNull('deleted_at')->count();
+
+        return $postsCount;
+    }
+
+    public static function generateResetPasswordCode()
+    {
+        return str_random(40);
     }
 }

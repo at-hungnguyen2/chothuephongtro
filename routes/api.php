@@ -36,3 +36,7 @@ Route::get('/posts/{id}', 'API\PostController@show');
 Route::get('/posts', 'API\PostController@index');
 
 Route::get('/rooms/{id}', 'API\RoomController@show');
+
+Route::name('resetpassword')->get('users/reset/{token}', 'API\UserController@resetPassword');
+
+Route::name('requestresetpassword')->get('users/offerreset/{email}', 'API\UserController@offerResetPassword');

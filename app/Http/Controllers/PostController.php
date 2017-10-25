@@ -28,13 +28,10 @@ class PostController extends Controller
     {
         $posts = $this->post->with(
         		['user' => function($user) {
-        			$user->select('id', 'name');
+        			$user->select('id', 'name')->withCount('posts');
         		},
         		'district' => function($district) {
         			$district->select('id', 'district');
-        		},
-        		'cost' => function($cost) {
-        			$cost->select('id', 'cost');
         		},
         		'subject' => function($subject) {
         			$subject->select('id', 'subject');
@@ -43,6 +40,7 @@ class PostController extends Controller
         			$postType->select('id', 'type');
         		}]
         	)->paginate(Post::ITEMS_PER_PAGE);
+        // dd($posts);
         return view('posts.index')->with('posts', $posts);
     }
 

@@ -2,7 +2,7 @@
 
 @section('main-header')
     <h1>
-        {{ __('LIST USERS') }}
+        {{ __('LIST ROOMS OF POST') }}
         <small></small>
     </h1>
 @endsection

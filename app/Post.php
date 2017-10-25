@@ -16,7 +16,7 @@ class Post extends Model
     CONST SUBJECT = 2;
 	
     protected $fillable = [
-    	'user_id', 'post_type_id', 'cost_id', 'subject_id', 'district_id', 'street_id', 'title', 'image', 'content', 'address', 'lat', 'lng', 'status', 'is_active'
+    	'user_id', 'post_type_id', 'lowest_price', 'highest_price', 'subject_id', 'district_id', 'street_id', 'title', 'image', 'content', 'address', 'lat', 'lng', 'status', 'is_active'
     ];
 
     public function comments()
@@ -58,6 +58,14 @@ class Post extends Model
     {
         if (!empty($data)) {
             $posts = $this->where(function ($query) use ($data) {
+                if (array_key_exists('lowest_price', $data) && array_key_exists('highest_price', $data)) {
+                    if ($data['lowest_price'] > $data['highest_price']) {
+                        $tmp = $data['lowest_price'];
+                        $data['lowest_price'] = $data['highest_price'];
+                        $data['highest_price'] = $tmp;
+                    }    
+                }
+                
                 foreach ($data as $key => $value) {
                     if ($value != null) {
                         switch ($key) {
@@ -66,8 +74,11 @@ class Post extends Model
                             case 'post_type_id':
                                 $query->where('post_type_id', $value);
                                 break;
-                            case 'cost_id':
-                                $query->where('cost_id', $value);
+                            case 'lowest_price':
+                                $query->where('lowest_price', '>=', $value);
+                                break;
+                            case 'highest_price':
+                                $query->where('highest_price', '<=', $value);
                                 break;
                             case 'subject_id':
                                 $query->where('subject_id', $value);

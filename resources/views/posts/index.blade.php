@@ -2,7 +2,7 @@
 
 @section('main-header')
     <h1>
-        {{ __('LIST USERS') }}
+        {{ __('LIST POSTS') }}
         <small></small>
     </h1>
 @endsection
@@ -28,10 +28,11 @@
                                     <th class="col-md-3">{{ __('Title') }}</th>
                                     <th class="col-md-3">{{ __('User') }}</th>
                                     <th class="col-md-1">{{ __('Post Type') }}</th>
-                                    <th class="col-md-1">{{ __('Cost') }}</th>
+                                    <th class="col-md-2">{{ __('Price') }}</th>
                                     <th class="col-md-1">{{ __('Subject') }}</th>
                                     <th class="col-md-1">{{ __('District') }}</th>
                                     <th class="col-md-1">{{ __('Status') }}</th>
+                                    <th class="col-md-1">{{ __('First Post') }}</th>
                                     <th class="col-md-1">{{ __('Active') }}</th>
                                     <th class="col-md-1">{{ __('Action') }}</th>
                                 </tr>
@@ -43,16 +44,18 @@
                                         <td>{{ $post->title }}</td>
                                         <td>{{ $post->user->name }}</td>
                                         <td>{{ $post->postType->type }}</td>
-                                        <td>{{ $post->cost->cost }}</td>
-                                        <td>{{ $post->subject->subject }}</td>
-                                        <td>{{ $post->district->district }}</td>                                      
                                         <td>
-                                        	<form method="POST" action="/posts/{{ $post->id }}">
-                                        		<input type="hidden" name="_method" value="PUT">
-                                        		<input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                                <input type="hidden" name="status" value="{{ $post->status }}">
-                                            	<button type="submit" class="btn-xs btn-primary"><i class="fa fa-certificate {{ ($post->status == 1) ? 'admin':'normal' }}"></i></button>
-                                            </form>
+                                            {{ number_format($post->lowest_price, 0, ',', '.') }} {{ __('VND') }}
+                                            -
+                                            {{ number_format($post->highest_price, 0, ',', '.') }} {{ __('VND') }}
+                                        </td>
+                                        <td>{{ $post->subject->subject }}</td>
+                                        <td>{{ $post->district->district }}</td>
+                                        <td>
+                                            <i class="fa fa-gratipay {{ ($post->status == 1) ? 'admin':'normal' }}"></i>
+                                        </td>                                      
+                                        <td>
+                                            <i class="fa fa-warning {{ ($post->user->posts_count == 1) ? 'admin':'normal' }}"></i>
                                         </td>
                                         <td>
                                             <form method="POST" action="/posts/{{ $post->id }}">

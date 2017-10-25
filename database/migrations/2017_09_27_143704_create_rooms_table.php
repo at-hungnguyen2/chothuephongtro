@@ -17,7 +17,7 @@ class CreateRoomsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('amount')->default(1);
             $table->text('image')->nullable();
-            $table->string('cost', 20);
+            $table->unsignedInteger('cost');
             $table->tinyInteger('status')->default(1);
             $table->unsignedInteger('post_id');
             $table->unsignedInteger('subject_id');

@@ -80,6 +80,7 @@ class RoomController extends APIController
 
 	public function storeOne(StoreRoomRequest $request, $postId)
 	{
+		//dd($request->all());
 		if ($request->hasFile('image') && $request->image->isValid()) {
 			$image = $request->image;
 			$destinationPath = public_path().env("ROOM_PATH");
@@ -99,6 +100,7 @@ class RoomController extends APIController
 		$roomData['cost'] = $request->cost;
 		$roomData['post_id'] = $postId;
 		$roomData['image'] = $fileName;
+		//dd($roomData);
 		$room = $this->room->create($roomData);
 		if (!$room) {
 			return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
@@ -189,7 +191,8 @@ class RoomController extends APIController
 		$request->request->add(['id' => $room->id]);
 		$dataRoom = $request->all();
 		$dataRoom['image'] = $fileName;
-		$room = $room->update(array_filter($dataRoom));
+		//dd(array_filter($dataRoom, 'strlen'));
+		$room = $room->update(array_filter($dataRoom, 'strlen'));
 		if ($room) {
 			if ($request->hasFile('image')) {
 				$request->image->move($destinationPath, $fileName);
@@ -223,4 +226,5 @@ class RoomController extends APIController
 
 		return response()->json(['message' => $message], $response);
 	}
+	
 }

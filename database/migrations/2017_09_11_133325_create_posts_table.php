@@ -17,7 +17,8 @@ class CreatePostsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('post_type_id');
-            $table->unsignedInteger('cost_id');
+            $table->unsignedInteger('lowest_price')->default(0);
+            $table->unsignedInteger('highest_price')->default(500000);
             $table->unsignedInteger('subject_id');
             $table->unsignedInteger('district_id');
             $table->unsignedInteger('street_id');
@@ -26,7 +27,7 @@ class CreatePostsTable extends Migration
             $table->text('content');
             $table->text('address');
             $table->tinyInteger('is_active')->default(0);
-            $table->tinyInteger('status')->default(1);
+            $table->tinyInteger('status')->default(0);
             $table->decimal('lat', 10, 7);
             $table->decimal('lng', 10, 7);
             $table->timestamps();
