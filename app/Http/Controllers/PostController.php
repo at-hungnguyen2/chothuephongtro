@@ -74,7 +74,7 @@ class PostController extends Controller
     		flash(__('Post has been not found'))->error()->important();
     	}
 
-    	return redirect()->route('posts.index');
+    	return redirect()->back();
     }
 
     /**

@@ -3,12 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\BeforeUpdate;
 
 class Post extends Model
 {
-    use BeforeUpdate;
-    
 	CONST ITEMS_PER_PAGE = 10;
     CONST STATUS_READY = 1;
     CONST STATUS_NOTREADY = 0;
@@ -86,5 +83,27 @@ class Post extends Model
             return $posts;
         }
         return $this;
+    }
+
+    /**
+     * This is a recommended way to declare event handlers
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        /**
+         * Register a deleting model event with the dispatcher.
+         *
+         * @param \Closure|string $callback
+         *
+         * @return void
+         */
+        static::deleting(function ($post) {
+            $post->comments()->delete();
+            $post->rooms()->delete();
+        });
     }
 }

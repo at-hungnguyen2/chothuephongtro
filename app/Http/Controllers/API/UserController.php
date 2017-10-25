@@ -9,6 +9,7 @@ use Laravel\Passport\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Post;
+use Illuminate\Support\Facades\File;
 
 class UserController extends APIController
 {
@@ -86,8 +87,28 @@ class UserController extends APIController
         if (!$request->has('is_admin')) {
             $userId = $request->user()->id;
             $request->request->add(['id' => $userId]);
-            $user = $this->user->findOrFail($userId)->updateNotNull($request->all());
+            if ($request->hasFile('image')) {
+                if ($request->file('image')->isValid()) {
+                    $destinationPath = public_path().env('USER_PATH');
+                    $fileName = env('USER_PATH').'/'.str_random(8).'.'.$request->file('image')->getClientOriginalExtension();
+                }
+            } else {
+                $fileName = 'default_image.jpg';
+            }
+            
+                $oldFileName = $request->user()->image;
+            
+            
+            $dataUser = $request->all();
+		    $dataUser['image'] = $fileName;
+            $user = $this->user->findOrFail($userId)->update(array_filter($dataUser));
             if ($user) {
+                if ($request->hasFile('image')) {
+                    $request->image->move($destinationPath, $fileName);
+                }
+                if ($oldFileName) {
+                    File::delete(public_path().env('USER_PATH').'/'.$oldFileName);
+                }
                 $message = __('Update success');
                 $response = Response::HTTP_OK;
             } else {

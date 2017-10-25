@@ -14,6 +14,9 @@ class User extends Authenticatable
     use BeforeUpdate;
 
     const ITEMS_PER_PAGE = 10;
+    const MALE = 1;
+    const FEMALE = 0;
+    const ADMIN = 1;
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'phone_number'
+        'name', 'email', 'password', 'phone_number', 'image', 'birthday', 'address'
     ];
 
     /**
@@ -36,5 +39,32 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany('App\Post', 'user_id', 'id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany('App\Comment', 'user_id', 'id');
+    }
+
+    /**
+     * This is a recommended way to declare event handlers
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        /**
+         * Register a deleting model event with the dispatcher.
+         *
+         * @param \Closure|string $callback
+         *
+         * @return void
+         */
+        static::deleting(function ($user) {
+            $user->posts()->delete();
+            $user->comments()->delete();
+        });
     }
 }

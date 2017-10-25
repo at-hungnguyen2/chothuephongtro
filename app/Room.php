@@ -3,12 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\BeforeUpdate;
 
 class Room extends Model
-{
-    use BeforeUpdate;
-    
+{   
+    const ITEMS_PER_PAGE = 10;
+    CONST STATUS_READY = 1;
+    CONST STATUS_NOTREADY = 0;
+
     protected $fillable = [
     	'amount', 'image', 'cost', 'post_id', 'subject_id', 'status'
     ];

@@ -28,16 +28,15 @@
         <!-- /.search form -->
 
         <!-- Sidebar Menu -->
-        <ul class="sidebar-menu">
+        <ul class="treeview @if(!Request::is('dashboard')) active @endif sidebar-menu">
             <li class="header">HEADER</li>
             <!-- Optionally, you can add icons to the links -->
-            <li class="active"><a href="#"><span>Link</span></a></li>
-            <li><a href="#"><span>Another Link</span></a></li>
+            <li class="active"><a href="{{ route('home') }}"><span>Home</span></a></li>
             <li class="treeview">
-                <a href="#"><span>Multilevel</span> <i class="fa fa-angle-left pull-right"></i></a>
+                <a href="#"><span>Manage</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
-                    <li><a href="#">Link in level 2</a></li>
-                    <li><a href="#">Link in level 2</a></li>
+                    <li class="@if(Request::is('users', 'users/*')) active @endif"><a href="{{ route('users.index') }}">Manage Users</a></li>
+                    <li class="@if(Request::is('home', 'home/*')) active @endif"><a href="{{ route('posts.index') }}">Manage Posts</a></li>
                 </ul>
             </li>
         </ul><!-- /.sidebar-menu -->
