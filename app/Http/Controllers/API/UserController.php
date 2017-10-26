@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\File;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UserPasswordChanged;
+use Unicodeveloper\EmailValidator\EmailValidator;
 
 class UserController extends APIController
 {
@@ -20,11 +21,13 @@ class UserController extends APIController
 
     protected $user;
     protected $client;
+    protected $emailValidator;
 
-    public function __construct(User $user)
+    public function __construct(User $user, EmailValidator $emailValidator)
     {
         $this->user = $user;
         $this->client = DB::table('oauth_clients')->where('id', 2)->first();
+        $this->emailValidator = $emailValidator;
     }
 
     /**
@@ -54,13 +57,23 @@ class UserController extends APIController
      */
     public function store(Request $request)
     {
-        $user = $this->user->create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone_number' => $request->phone_number,
-            'password' => bcrypt($request->password)
-        ]);
-        return response()->json(['data' => $user, 'success' => true], Response::HTTP_OK);
+        $rules = [
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6|confirmed',
+        ];
+        
+        $this->validate($request, $rules);
+
+        if ($this->emailValidator->verify($request->email)->isValid()[0]) {
+            $user = $this->user->create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'password' => bcrypt($request->password)
+            ]);
+            return response()->json(['data' => $user, 'success' => true], Response::HTTP_OK);
+        }
+        return $this->errorResponse('This email is not existed, please make sure you fill in existed email!', 404);
     }
 
     /**
@@ -105,12 +118,21 @@ class UserController extends APIController
             
             $dataUser = $request->all();
 
+            $user = $this->user->findOrFail($userId);
+
             if ($request->has('password')) {
+                $rules = [
+                    'old_password' => 'required|min:6|old_password:' . $user->password,
+                    'password' => 'min:6|confirmed'
+                ];
+
+                $this->validate($request, $rules);
+
                 $dataUser['password'] = bcrypt($request->password);
             }
 
 		    $dataUser['image'] = $fileName;
-            $user = $this->user->findOrFail($userId)->update(array_filter($dataUser));
+            $user = $user->update(array_filter($dataUser));
             if ($user) {
                 if ($request->hasFile('image')) {
                     $request->image->move($destinationPath, $fileName);

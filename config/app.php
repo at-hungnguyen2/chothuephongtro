@@ -168,7 +168,7 @@ return [
          * Package Service Providers...
          */
         Laravel\Passport\PassportServiceProvider::class,
-
+        Unicodeveloper\EmailValidator\EmailValidatorServiceProvider::class,
         /*
          * Application Service Providers...
          */

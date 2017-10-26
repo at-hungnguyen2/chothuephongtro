@@ -5,8 +5,11 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\User;
 use App\Room;
+use App\Post;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UserPasswordChanged;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,6 +20,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Validator::extend('old_password', function ($attribute, $value, $parameters, $validator) {
+            return Hash::check($value, current($parameters));
+        });
+
+        Validator::replacer('old_password', function ($message, $attribute, $rule, $parameters) {
+            return str_replace($attribute, $message, 'Your old password is not match current password');
+        });
+
         Room::updated(function($room) {
             $roomOriginal = $room->getOriginal();
             if (array_key_exists('status', $room->getDirty())) {

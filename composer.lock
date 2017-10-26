@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0be9095b66a16c81ce49ae600ebb007",
+    "content-hash": "4a52cd23880fb2c6e9f717652ecf0c3d",
     "packages": [
         {
             "name": "defuse/php-encryption",
@@ -1904,6 +1904,57 @@
             "time": "2017-07-29T19:30:02+00:00"
         },
         {
+            "name": "quickemailverification/quickemailverification",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/quickemailverification/quickemailverification-php.git",
+                "reference": "b59f5a89e556e079ee398689760d6e86e063caab"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/quickemailverification/quickemailverification-php/zipball/b59f5a89e556e079ee398689760d6e86e063caab",
+                "reference": "b59f5a89e556e079ee398689760d6e86e063caab",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "QuickEmailVerification\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "quickemailverification",
+                    "email": "support@quickemailverification.com",
+                    "homepage": "http://quickemailverification.com"
+                }
+            ],
+            "description": "Official QuickEmailVerification API library client for PHP",
+            "homepage": "http://quickemailverification.com",
+            "keywords": [
+                "api",
+                "client",
+                "email",
+                "email verification api",
+                "free",
+                "library",
+                "quickemailverification",
+                "validation",
+                "verification",
+                "verify"
+            ],
+            "time": "2017-07-19T07:40:51+00:00"
+        },
+        {
             "name": "ramsey/uuid",
             "version": "3.7.1",
             "source": {
@@ -2893,6 +2944,68 @@
             "description": "CssToInlineStyles is a class that enables you to convert HTML-pages/files into HTML-pages/files with inline styles. This is very useful when you're sending emails.",
             "homepage": "https://github.com/tijsverkoyen/CssToInlineStyles",
             "time": "2016-09-20T12:50:39+00:00"
+        },
+        {
+            "name": "unicodeveloper/laravel-email-validator",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/unicodeveloper/laravel-email-validator.git",
+                "reference": "74de039c0c1e631e24d4cd38df5f5e29291b0cb2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/unicodeveloper/laravel-email-validator/zipball/74de039c0c1e631e24d4cd38df5f5e29291b0cb2",
+                "reference": "74de039c0c1e631e24d4cd38df5f5e29291b0cb2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9",
+                "quickemailverification/quickemailverification": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.*",
+                "scrutinizer/ocular": "~1.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Unicodeveloper\\EmailValidator\\": "src"
+                },
+                "files": [
+                    "src/helpers.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "unicodeveloper",
+                    "email": "prosperotemuyiwa@gmail.com",
+                    "homepage": "http://goodheads.io",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Provides a Facade to help validate and verify email addresses",
+            "homepage": "https://github.com/busayo/laravel-email-validator",
+            "keywords": [
+                "Year",
+                "busayo",
+                "email-validator",
+                "email-verifier",
+                "laravel",
+                "laravel-email-validator",
+                "validate",
+                "verify"
+            ],
+            "time": "2015-11-01T20:23:52+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
