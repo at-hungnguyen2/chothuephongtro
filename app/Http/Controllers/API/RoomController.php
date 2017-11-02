@@ -78,7 +78,7 @@ class RoomController extends APIController
 		return response()->json(['room' => $room, 'success' => true], Response::HTTP_OK);
 	}
 
-	public function storeOne(StoreRoomRequest $request, $postId)
+	public function storeOne(Request $request, $postId)
 	{
 		//dd($request->all());
 		if ($request->hasFile('image') && $request->image->isValid()) {

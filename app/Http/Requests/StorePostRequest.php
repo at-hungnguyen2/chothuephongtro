@@ -25,16 +25,7 @@ class StorePostRequest extends FormRequest
     public function rules()
     {
         return [
-            'post_type_id' => 'required|integer',
-            'cost_id' => 'required|integer',
-            'subject_id' => 'required|integer',
-            'district_id' => 'required|integer',
-            'street_id' => 'required|integer',
-            'title' => 'required',
-            'content' => 'required',
-            'lat' => 'required',
-            'lng' => 'required',
-            'address' => 'required'
+            
         ];
     }
 }

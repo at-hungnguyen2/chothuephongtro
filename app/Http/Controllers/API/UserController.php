@@ -61,7 +61,7 @@ class UserController extends APIController
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
         ];
-        
+        // dd($request->all());
         $this->validate($request, $rules);
 
         if ($this->emailValidator->verify($request->email)->isValid()[0]) {

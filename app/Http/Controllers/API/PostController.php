@@ -52,7 +52,7 @@ class PostController extends APIController
         		},
         		'postType' => function($postType) {
         			$postType->select('id', 'type');
-        		}])
+        		},'rooms'])
 				->where('is_active', Post::ACTIVE)->where('status', Post::STATUS_READY)->orderBy('created_at', 'desc')->paginate(9);
 		$subjects = Subject::select('id', 'subject')->get();
 		$postTypes = PostType::select('id', 'type')->get();
@@ -93,8 +93,9 @@ class PostController extends APIController
 	 *
 	 * @return Illuminate\Http\Response
 	 */
-	public function store(StorePostRequest $request)
+	public function store(Request $request)
 	{
+		//dd($request->all());
 		if ($request->hasFile('image')) {
 			if ($request->file('image')->isValid()) {
 				$destinationPath = public_path().env('POST_PATH');
@@ -143,10 +144,24 @@ class PostController extends APIController
     		}])->findOrFail($id);
 		$rooms = $this->room->where('post_id', $id)->with('subject')->get();
 		$comments = $this->comment->with('user')->where('post_id', $id)->get();
+		$postLienQuan = $this->post->with(
+    		['user' => function($user) {
+    			$user->select('id', 'name', 'email', 'phone_number');
+    		},
+    		'district' => function($district) {
+    			$district->select('id', 'district');
+    		},
+    		'subject' => function($subject) {
+    			$subject->select('id', 'subject');
+    		},
+    		'postType' => function($postType) {
+    			$postType->select('id', 'type');
+    		},'rooms'])->where('district_id', $post->district_id)->where('id','<>',$post->id)->paginate(5);
 		return response()->json([
 				'data' => $post,
 				'rooms' => $rooms,
 				'comments' => $comments,
+				'postLienQuan' => $postLienQuan,
 				'success' => true
 			], Response::HTTP_OK);
 	}
@@ -178,7 +193,6 @@ class PostController extends APIController
 			}
 			$rooms = $this->room->where('post_id', $id)->get();
 			$districts = District::select('id', 'district')->get();
-			$costs = Cost::select('id', 'cost')->get();
 			$subjects = Subject::select('id', 'subject')->get();
 			$postTypes = PostType::select('id', 'type')->get();
 			return response()->json([
