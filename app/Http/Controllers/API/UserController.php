@@ -121,12 +121,12 @@ class UserController extends APIController
             $user = $this->user->findOrFail($userId);
 
             if ($request->has('password')) {
-                $rules = [
-                    'old_password' => 'required|min:6|old_password:' . $user->password,
-                    'password' => 'min:6|confirmed'
-                ];
+                // $rules = [
+                //     'old_password' => 'required|min:6|old_password:' . $user->password,
+                //     'password' => 'min:6|confirmed'
+                // ];
 
-                $this->validate($request, $rules);
+                // $this->validate($request, $rules);
 
                 $dataUser['password'] = bcrypt($request->password);
             }
@@ -178,12 +178,13 @@ class UserController extends APIController
     public function resetPassword($token)
     {
         $user = User::where('reset_password_token', $token)->firstOrFail();
+        $newPassword = str_random(6);
 
         $user->reset_password_token = null;
-        $user->password = bcrypt(User::DEFAULT_PASSWORD);
+        $user->password = bcrypt($newPassword);
         $user->save();
 
-        return view('email.resetsuccess')->with('user', $user);
+        return view('email.resetsuccess')->with(['user' => $user, 'newPassword' => $newPassword]);
     }
 
     public function offerResetPassword($email)

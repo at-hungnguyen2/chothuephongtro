@@ -100,11 +100,16 @@ class RoomController extends APIController
 		$roomData['cost'] = $request->cost;
 		$roomData['post_id'] = $postId;
 		$roomData['image'] = $fileName;
+		$roomData['status'] = Room::STATUS_READY;
 		//dd($roomData);
 		$room = $this->room->create($roomData);
 		if (!$room) {
 			return response()->json(['success' => false], Response::HTTP_BAD_REQUEST);
 		}
+
+		$post = Post::findOrFail($postId);
+		$post->status = 1;
+		$post->save();
 		return response()->json(['room' => $room, 'success' => true], Response::HTTP_OK);
 	}
 

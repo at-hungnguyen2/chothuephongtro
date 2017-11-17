@@ -79,7 +79,7 @@ class Post extends Model
                                 $query->where('subject_id', $value);
                                 break;
                             case 'district_id':
-                                $query->where('subject_id', $value);
+                                $query->where('district_id', $value);
                                 break;
                         }
                     }
