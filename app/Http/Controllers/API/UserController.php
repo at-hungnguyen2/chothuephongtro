@@ -14,6 +14,7 @@ use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UserPasswordChanged;
 use Unicodeveloper\EmailValidator\EmailValidator;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends APIController
 {
@@ -119,16 +120,13 @@ class UserController extends APIController
             $dataUser = $request->all();
 
             $user = $this->user->findOrFail($userId);
-
-            if ($request->has('password')) {
-                // $rules = [
-                //     'old_password' => 'required|min:6|old_password:' . $user->password,
-                //     'password' => 'min:6|confirmed'
-                // ];
-
-                // $this->validate($request, $rules);
-
-                $dataUser['password'] = bcrypt($request->password);
+            if ($request->has('old_password') && $request->old_password != null) {
+                $oldpass = $request->old_password;
+                if (!Hash::check($oldpass, $user->password)) {
+                    return response()->json(['message' => __('Old password is wrong')], Response::HTTP_BAD_REQUEST);
+                } else {
+                    $dataUser['password'] = Hash::make($dataUser['password']);
+                }
             }
 
 		    $dataUser['image'] = $fileName;

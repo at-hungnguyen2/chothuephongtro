@@ -156,7 +156,7 @@ class PostController extends APIController
     		},
     		'postType' => function($postType) {
     			$postType->select('id', 'type');
-    		},'rooms'])->where('district_id', $post->district_id)->where('id','<>',$post->id)->paginate(5);
+    		},'rooms'])->where('is_active', Post::ACTIVE)->where('status', Post::STATUS_READY)->where('district_id', $post->district_id)->where('id','<>',$post->id)->paginate(5);
 		return response()->json([
 				'data' => $post,
 				'rooms' => $rooms,
